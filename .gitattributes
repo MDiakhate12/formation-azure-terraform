@@ -1,0 +1,5 @@
+# Fins de ligne Unix pour les scripts et les templates, même sous Windows (Git Bash, cloud-init)
+*.sh    text eol=lf
+*.tftpl text eol=lf
+*.tf    text eol=lf
+*.yml   text eol=lf
