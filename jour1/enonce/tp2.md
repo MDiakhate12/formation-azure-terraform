@@ -6,7 +6,7 @@
 
 1. Créez `variables.tf` avec trois variables :
    - `prenom` (sans valeur par défaut) ;
-   - `location` (défaut `westeurope`) ;
+   - `location` (défaut `swedencentral`) ;
    - `environment` (défaut `dev`), avec une `validation` qui n'accepte que `dev` ou `prod`.
 2. Créez un local `name_prefix` qui vaut `<prénom>-<environment>` et nommez le resource group `rg-${local.name_prefix}`.
 3. Ajoutez un output `resource_group_id`.

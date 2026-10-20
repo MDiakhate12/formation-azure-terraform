@@ -18,7 +18,7 @@ resource "azurerm_kubernetes_cluster" "main" {
   dns_prefix          = "aks-${var.prenom}"
   kubernetes_version  = var.kubernetes_version
 
-  # Un seul nœud, sans zone : la B2s_v2 n'est pas disponible dans toutes les zones de westeurope.
+  # Un seul nœud, sans zone : la création ne dépend pas de la capacité d'une zone précise.
   default_node_pool {
     name                        = "system"
     vm_size                     = "Standard_B2s_v2"

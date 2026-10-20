@@ -12,7 +12,7 @@ export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 
 Sous Windows PowerShell : `$env:ARM_SUBSCRIPTION_ID = (az account show --query id -o tsv)`.
 
-Rappels : préfixe par votre prénom, région `westeurope`, taille `Standard_B2s_v2`, **aucune zone** sur les nœuds.
+Rappels : préfixe par votre prénom, région `swedencentral`, taille `Standard_B2s_v2`, **aucune zone** sur les nœuds.
 
 | TP | Sujet | Durée |
 |---|---|---|

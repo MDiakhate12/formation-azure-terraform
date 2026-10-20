@@ -21,4 +21,4 @@
 
 ## Pour aller plus loin
 
-Passez `dns_label_enabled = true` au module et ouvrez `http://tf-<prénom>.westeurope.cloudapp.azure.com`.
+Passez `dns_label_enabled = true` au module et ouvrez `http://tf-<prénom>.swedencentral.cloudapp.azure.com`.

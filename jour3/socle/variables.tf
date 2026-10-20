@@ -10,7 +10,7 @@ variable "prenom" {
 
 variable "location" {
   type    = string
-  default = "westeurope"
+  default = "swedencentral"
 }
 
 variable "kubernetes_version" {

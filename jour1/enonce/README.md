@@ -18,7 +18,7 @@ Sous Windows PowerShell : `$env:ARM_SUBSCRIPTION_ID = (az account show --query i
 ## Règles de la subscription partagée
 
 - Préfixez **toutes** vos ressources par votre prénom, en minuscules et sans accent.
-- Région unique : `westeurope`. Taille de VM autorisée : `Standard_B2s_v2`. Une policy refuse le reste.
+- Région unique : `swedencentral`. Taille de VM autorisée : `Standard_B2s_v2`. Une policy refuse le reste.
 - Détruisez ce qui coûte (la VM du bonus) avant de partir.
 
 | TP | Sujet | Durée |

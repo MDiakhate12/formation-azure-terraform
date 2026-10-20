@@ -8,7 +8,7 @@
 2. Dans votre dossier de travail, créez `main.tf` avec :
    - un bloc `terraform` qui exige Terraform `>= 1.15.0` et le provider `hashicorp/azurerm` en `~> 5.0` ;
    - un bloc `provider "azurerm"` avec `features {}` ;
-   - un `azurerm_resource_group` nommé `rg-<prénom>-tf`, en `westeurope`.
+   - un `azurerm_resource_group` nommé `rg-<prénom>-tf`, en `swedencentral`.
 3. Enchaînez `terraform init`, `fmt`, `validate`, `plan`, puis `apply`.
 4. Retrouvez votre resource group dans le portail Azure.
 5. Lancez `terraform destroy`, puis `apply` à nouveau : la même infrastructure revient.

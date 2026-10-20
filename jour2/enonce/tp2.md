@@ -5,7 +5,7 @@
 ## Étapes
 
 1. Créez un resource group à la main :
-   `az group create -n rg-<prénom>-manuel -l westeurope`
+   `az group create -n rg-<prénom>-manuel -l swedencentral`
 2. Dans un nouveau dossier, écrivez :
    - un bloc `resource "azurerm_resource_group" "legacy"` qui décrit ce resource group ;
    - un bloc `import` vers `azurerm_resource_group.legacy`. Son `id` est de la forme
