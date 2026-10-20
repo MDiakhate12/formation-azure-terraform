@@ -1,0 +1,32 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfvars
+!*.tfvars.example
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+# NB : .terraform.lock.hcl est volontairement versionné
+
+# Secrets / accès
+.env
+*.pem
+*.key
+kubeconfig*
+*.kubeconfig
+credentials*.txt
+.DS_Store
+# Jamais dans ce dépôt public
+formateur-*.html
+CLAUDE.md
+CLAUDE.local.md
+__pycache__/
+
+# Les dev.tfvars fournis ne contiennent que le prénom à remplacer
+!dev.tfvars

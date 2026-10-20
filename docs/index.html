@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Azure Terraform : Infrastructure Automation</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{--bg:#F6FAFB;--ink:#0E2433;--body:#34495A;--mute:#566A7A;--card:#FFFFFF;--line:#D3E0E6;--p1:#0A6FB8;--p2:#BF4412;--t1:#DCEEF7;--shadow:rgba(14,36,51,.28)}
+@media (prefers-color-scheme:dark){:root{--bg:#0D1B26;--ink:#EAF2F7;--body:#B9CAD6;--mute:#8FA5B5;--card:#14283A;--line:#25405A;--p1:#5DB4F0;--p2:#FF9A6B;--t1:#12324A;--shadow:rgba(0,0,0,.5)}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'DM Sans','Segoe UI',Arial,sans-serif;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px);
+background-image:radial-gradient(900px 600px at 105% -10%,rgba(10,111,184,.12),transparent 60%),radial-gradient(800px 520px at -8% 110%,rgba(191,68,18,.09),transparent 60%)}
+main{max-width:1100px;margin:0 auto;padding:72px 24px 80px}
+.eyebrow{margin:0 0 18px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:14px;color:var(--p1)}
+h1{margin:0;font-family:'Bricolage Grotesque','Segoe UI',Arial,sans-serif;font-weight:800;font-size:clamp(44px,8vw,92px);line-height:1;letter-spacing:-.03em}
+h1 span{background:linear-gradient(90deg,var(--p1),#5B3FD6);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{margin:18px 0 0;font-size:clamp(20px,3vw,30px);color:var(--body);max-width:760px;line-height:1.35}
+.meta{display:flex;flex-wrap:wrap;gap:10px;margin:28px 0 0}
+.meta span{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:8px 18px;font-size:15px;font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px;margin-top:56px}
+.card{display:flex;flex-direction:column;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:30px;text-decoration:none;color:inherit;box-shadow:0 22px 44px -28px var(--shadow);transition:transform .35s cubic-bezier(.2,.8,.2,1),border-color .2s}
+a.card:hover{transform:translateY(-6px);border-color:var(--p1)}
+.num{font-family:'Bricolage Grotesque','Segoe UI',Arial,sans-serif;font-weight:800;font-size:64px;line-height:1;color:var(--p1)}
+.card h2{margin:0;font-family:'Bricolage Grotesque','Segoe UI',Arial,sans-serif;font-size:26px}
+.card p{margin:0;color:var(--body);line-height:1.45}
+.go{margin-top:auto;font-weight:700;color:var(--p1)}
+.soon{opacity:.62}.soon .num{color:var(--mute)}.soon .go{color:var(--mute)}
+footer{margin-top:56px;color:var(--mute);font-size:14px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head>
+<body><main>
+<p class="eyebrow">Formation · 3 jours · 21 heures</p>
+<h1>Azure <span>Terraform</span></h1>
+<p class="sub">Infrastructure Automation : de la syntaxe HCL à une application en ligne sur AKS.</p>
+<div class="meta"><span>26 – 28 octobre 2026</span><span>Classe virtuelle</span><span>Mouhammad Diakhaté, formateur</span></div>
+<div class="grid">
+<a class="card" href="jour1/"><div class="num">01</div><h2>Jour 1</h2><p>Introduction, syntaxe HCL, réseau Azure, HCL avancé et modules.</p><span class="go">Ouvrir le support</span></a>
+<a class="card" href="jour2/"><div class="num">02</div><h2>Jour 2</h2><p>State distant, import, RBAC, CI/CD, puis un cluster AKS.</p><span class="go">Ouvrir le support</span></a>
+<a class="card" href="jour3/"><div class="num">03</div><h2>Jour 3</h2><p>Exploiter AKS, déployer l’application, troubleshooting et QCM.</p><span class="go">Ouvrir le support</span></a>
+</div>
+<footer>Support de cours distribué aux participants. Dans chaque support : flèches ou espace pour avancer, M pour le plan, T pour changer de thème.</footer>
+</main></body></html>
