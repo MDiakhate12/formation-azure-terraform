@@ -8,7 +8,10 @@ Il réunit le TP3 (identité managée) et le TP4 (pipeline). Il vous faut un dé
 1. Dans un nouveau dossier, créez un resource group `rg-<prénom>-oidc` et une identité managée `id-<prénom>-github`.
 2. Ajoutez deux `azurerm_federated_identity_credential` sur cette identité (`user_assigned_identity_id`) :
    - `issuer = "https://token.actions.githubusercontent.com"`, `audience = ["api://AzureADTokenExchange"]` ;
-   - `subject` : `repo:<propriétaire>/<dépôt>:ref:refs/heads/main`, puis `repo:<propriétaire>/<dépôt>:pull_request`.
+   - `subject` : `<début>:ref:refs/heads/main`, puis `<début>:pull_request`.
+     GitHub met dans `<début>` les identifiants numériques du propriétaire et du dépôt : `repo:<propriétaire>@<id>/<dépôt>@<id>`.
+     Pour les connaître : `curl -s https://api.github.com/repos/<propriétaire>/<dépôt>`, champs `owner.id` et `id`.
+     Ou lancez le workflow une première fois : l'échec affiche le `subject claim` exact.
 3. Donnez à l'identité le rôle `Reader` sur son resource group.
 4. Exposez en output `client_id`, `tenant_id` et `subscription_id`, puis `apply`.
 5. Dans le dépôt GitHub, créez ces valeurs comme **variables** (Settings, Secrets and variables, Actions, onglet Variables) :
