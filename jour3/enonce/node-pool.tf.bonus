@@ -3,7 +3,7 @@
 resource "azurerm_kubernetes_cluster_node_pool" "apps" {
   name                  = "apps"
   kubernetes_cluster_id = azurerm_kubernetes_cluster.main.id
-  vm_size               = "Standard_B2s_v2"
+  vm_size               = "Standard_D2as_v6"
   vnet_subnet_id        = azurerm_subnet.aks.id
   node_count            = 1
   node_labels = {

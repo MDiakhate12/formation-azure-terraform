@@ -9,7 +9,7 @@ Ce TP est autonome : il crée son propre resource group (`rg-<prénom>-vm`), son
 2. Créez une `azurerm_network_interface` dans `snet-app`, **sans IP publique**.
 3. Générez une clé SSH avec la ressource `tls_private_key` (algorithme `ED25519`, provider `hashicorp/tls`).
 4. Créez une `azurerm_linux_virtual_machine` :
-   - taille `Standard_B2s_v2`, **sans** argument `zone` ;
+   - taille `Standard_D2as_v6`, **sans** argument `zone`, avec `disk_controller_type = "NVMe"` (cette taille n'accepte que des disques NVMe) ;
    - image Ubuntu 24.04 : `Canonical`, `ubuntu-24_04-lts`, `server`, `latest` ;
    - `custom_data = base64encode(templatefile("cloud-init.tftpl", { ... }))`.
 5. Écrivez `cloud-init.tftpl` : il fixe le nom d'hôte, installe `nginx` et écrit une page d'accueil avec votre prénom.

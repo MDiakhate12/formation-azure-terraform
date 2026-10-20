@@ -21,7 +21,7 @@ resource "azurerm_kubernetes_cluster" "main" {
   # Un seul nœud, sans zone : la création ne dépend pas de la capacité d'une zone précise.
   default_node_pool {
     name                        = "system"
-    vm_size                     = "Standard_B2s_v2"
+    vm_size                     = "Standard_D2as_v6"
     node_count                  = 1
     vnet_subnet_id              = azurerm_subnet.aks.id
     temporary_name_for_rotation = "systemtmp"

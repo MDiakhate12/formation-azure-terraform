@@ -6,7 +6,7 @@
 
 1. Dans un nouveau dossier, créez un resource group `rg-<prénom>-aks`, puis `aks.tf` :
    - `azurerm_kubernetes_cluster` nommé `aks-<prénom>`, `dns_prefix` identique ;
-   - `default_node_pool` : `name = "system"`, `vm_size = "Standard_B2s_v2"`, `node_count = 1`, **sans** `zones` ;
+   - `default_node_pool` : `name = "system"`, `vm_size = "Standard_D2as_v6"`, `node_count = 1`, **sans** `zones` ;
    - `identity { type = "SystemAssigned" }` ;
    - `node_provisioning_profile { mode = "Manual" }`, obligatoire en azurerm 5.
 2. `apply` **tout de suite** : la création prend 5 à 10 minutes.
