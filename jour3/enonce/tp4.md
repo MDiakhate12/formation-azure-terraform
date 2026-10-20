@@ -21,6 +21,7 @@ terraform apply -var-file=dev.tfvars
 ## Puis
 
 Relancez `plan` avec `TF_LOG=DEBUG` et `TF_LOG_PATH=terraform.log`, et repérez un appel à l'API Kubernetes ou Azure dans le fichier.
+Sous PowerShell : `$env:TF_LOG = "DEBUG"; $env:TF_LOG_PATH = "terraform.log"`, puis `Remove-Item Env:TF_LOG` pour arrêter.
 
 ## Questions
 

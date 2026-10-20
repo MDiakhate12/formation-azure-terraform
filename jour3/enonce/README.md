@@ -22,6 +22,8 @@ terraform output -raw get_credentials    # copiez-collez la commande affichée :
 kubectl get nodes
 ```
 
+Sous Windows PowerShell : `$env:ARM_SUBSCRIPTION_ID = (az account show --query id -o tsv)`.
+
 | TP | Sujet | Durée |
 |---|---|---|
 | [TP1](tp1.md) | Brancher Terraform sur le cluster | 30 min |

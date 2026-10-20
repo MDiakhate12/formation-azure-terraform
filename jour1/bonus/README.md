@@ -20,4 +20,5 @@ La VM consomme 2 vCPU du quota partagé : ne la laissez pas tourner.
 ## Pour aller plus loin
 
 Ajoutez une IP publique et une règle NSG qui autorise SSH depuis votre seule adresse IP, connectez-vous
-(`terraform output -raw ssh_private_key > cle && chmod 600 cle`), puis retirez l'IP publique.
+(`terraform output -raw ssh_private_key > cle && chmod 600 cle`, puis `ssh -i cle azureuser@<ip>`), puis retirez l'IP publique.
+Sous Windows, faites cette étape dans Git Bash : PowerShell n'applique pas `chmod`.
