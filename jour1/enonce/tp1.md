@@ -2,16 +2,69 @@
 
 **Objectif** : déployer, puis détruire, un resource group avec Terraform. **Durée** : 30 minutes.
 
-## Étapes
+## 1. Se connecter
 
-1. Connectez-vous et exportez `ARM_SUBSCRIPTION_ID` (voir le [README](README.md)).
-2. Dans votre dossier de travail, créez `main.tf` avec :
-   - un bloc `terraform` qui exige Terraform `>= 1.15.0` et le provider `hashicorp/azurerm` en `~> 5.0` ;
-   - un bloc `provider "azurerm"` avec `features {}` ;
-   - un `azurerm_resource_group` nommé `rg-<prénom>-tf`, en `swedencentral`.
-3. Enchaînez `terraform init`, `fmt`, `validate`, `plan`, puis `apply`.
-4. Retrouvez votre resource group dans le portail Azure.
-5. Lancez `terraform destroy`, puis `apply` à nouveau : la même infrastructure revient.
+Voir le [README](README.md) : `az login --tenant <tenant>`, puis `export ARM_SUBSCRIPTION_ID=...`.
+
+## 2. Déclarer Terraform et le provider
+
+Dans votre dossier de travail, créez `versions.tf` :
+
+```hcl
+terraform {
+  required_version = ">= 1.15.0"
+
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 5.0"
+    }
+  }
+}
+
+provider "azurerm" {
+  features {}
+}
+```
+
+- `terraform { }` : les réglages de Terraform lui-même.
+- `required_version` : la version minimale de Terraform acceptée.
+- `required_providers` : les plugins à télécharger. `source` dit où le trouver, `version` lesquelles accepter (`~> 5.0` : toute 5.x, jamais 6.0).
+- `provider "azurerm"` : la connexion à Azure. `features {}` est obligatoire, même vide. La subscription est lue dans `ARM_SUBSCRIPTION_ID`.
+
+## 3. Décrire le resource group
+
+Créez `main.tf` :
+
+```hcl
+resource "azurerm_resource_group" "main" {
+  name     = "rg-<prénom>-tf"
+  location = "swedencentral"
+}
+```
+
+- `resource` : une ressource que Terraform crée et gère.
+- `"azurerm_resource_group"` : son type (fourni par le provider). `"main"` : son nom dans le code, pour y faire référence.
+- `name`, `location` : les arguments. `name` est le nom réel dans Azure : mettez votre prénom.
+
+## 4. Le cycle de vie
+
+```bash
+terraform init       # télécharge le provider dans .terraform/
+terraform fmt        # remet le code en forme
+terraform validate   # vérifie la syntaxe, sans appeler Azure
+terraform plan       # montre ce qui va changer, sans rien faire
+terraform apply      # applique, après votre "yes"
+```
+
+Retrouvez votre resource group dans le portail Azure.
+
+## 5. Détruire et recommencer
+
+```bash
+terraform destroy    # supprime tout ce que le state connaît
+terraform apply      # la même infrastructure revient
+```
 
 ## Questions
 
@@ -20,4 +73,10 @@
 
 ## Pour aller plus loin
 
-Ajoutez un tag `owner` au resource group et lisez le plan : quel symbole apparaît ?
+Ajoutez un tag et lisez le plan : quel symbole apparaît ?
+
+```hcl
+  tags = {
+    owner = "<prénom>"
+  }
+```

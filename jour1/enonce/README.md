@@ -3,7 +3,7 @@
 Un fil rouge sur la journée : un resource group, puis un réseau, puis un module réutilisable.
 Travaillez dans **votre propre dossier** (par exemple `~/formation/jour1`), en dehors du clone du dépôt, et faites-le évoluer de TP en TP.
 
-Bloqué ? La solution de chaque TP est publiée juste après sa correction : `git pull`, puis copiez `jour1/solution/tpN`. dans votre dossier et repartez de là.
+Bloqué ? La solution de chaque TP est publiée juste après sa correction : `git pull`, puis copiez `jour1/solution/tpN` dans votre dossier et repartez de là.
 
 ## Avant de commencer
 
