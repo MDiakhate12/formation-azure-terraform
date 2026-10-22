@@ -108,6 +108,14 @@ Après un `apply` :
 3. Menu **Settings > Subnets** (Paramètres > Sous-réseaux) : le NSG est associé à `snet-app`.
 4. Côté VNet, **Subnets** (Sous-réseaux) : la colonne **Security group** (Groupe de sécurité) indique `nsg-<prénom>-dev-app` pour `snet-app`, rien pour `snet-data`.
 
+## Documentation
+
+- [`azurerm_network_security_group`](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_group)
+- [`azurerm_network_security_rule`](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_security_rule)
+- [`azurerm_subnet_network_security_group_association`](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet_network_security_group_association)
+- [`for_each`](https://developer.hashicorp.com/terraform/language/meta-arguments/for_each)
+- [`count`](https://developer.hashicorp.com/terraform/language/meta-arguments/count)
+
 ## Questions
 
 - Comment s'appelle chaque règle dans le state (`terraform state list`) ?

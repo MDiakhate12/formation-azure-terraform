@@ -186,6 +186,17 @@ body.ui-on #ui,body.ui-on #cnt{opacity:1}
 #help.open{display:flex}
 #help .box{background:var(--card);color:var(--ink);border-radius:20px;padding:28px 34px;max-width:min(560px,90vw);font:400 16px/1.9 var(--font-body)}
 #help kbd{font:600 13px var(--font-mono);background:var(--t3);border:1px solid var(--line);border-radius:6px;padding:2px 8px;margin-right:6px}
+#clock{position:fixed;top:max(14px,env(safe-area-inset-top));right:max(16px,env(safe-area-inset-right));width:72px;height:72px;z-index:70;display:none;cursor:pointer}
+#clock.on{display:block}
+#clock svg{width:100%;height:100%;transform:rotate(-90deg)}
+#clock circle{fill:none;stroke-width:5;stroke-linecap:round;transition:stroke .4s,stroke-dashoffset .25s linear}
+#clock .bg{stroke:var(--line);fill:var(--card)}
+#clock .lap1{stroke:var(--p1)}
+#clock.warn .lap1{stroke:#D29922}
+#clock.over .lap1{stroke:#CF222E;opacity:.35}
+#clock .lap2{stroke:#CF222E;stroke-width:7}
+#clock span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:700 14px var(--font-mono);color:var(--ink)}
+#clock.over span{color:#CF222E}
 #toast{position:fixed;left:50%;top:max(18px,env(safe-area-inset-top));transform:translate(-50%,-20px);background:var(--ink);color:var(--bg);font:600 15px var(--font-body);padding:10px 20px;border-radius:999px;opacity:0;transition:opacity .35s,transform .35s;z-index:90;pointer-events:none;white-space:nowrap}
 #toast.on{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
@@ -195,7 +206,7 @@ body.ui-on #ui,body.ui-on #cnt{opacity:1}
  .slide{position:relative;opacity:1!important;visibility:visible!important;transform:none!important;width:1920px;height:1080px;page-break-after:always;break-after:page}
  .step{opacity:1!important;transform:none!important}
  .rv,.cl,.seg,.layer,.pico,.arrow .shaft,.share{animation:none!important}
- #ui,#bar,#notes,#menu,#help,#toast,#cnt,#probe{display:none!important}
+ #ui,#bar,#notes,#menu,#help,#toast,#cnt,#probe,#clock{display:none!important}
  @page{size:1920px 1080px;margin:0}
 }
 </style>
@@ -287,8 +298,10 @@ body.ui-on #ui,body.ui-on #cnt{opacity:1}
  <kbd>N</kbd> notes du formateur · <kbd>M</kbd> plan<br>
  <kbd>T</kbd> changer de thème · <kbd>D</kbd> mode sombre<br>
  <kbd>F</kbd> plein écran · <kbd>Échap</kbd> fermer<br>
+ <kbd>C</kbd> horloge de la slide (version formateur) · clic sur l’horloge : relancer<br>
  Impression ou PDF : Ctrl/Cmd + P, une page par slide.
 </div></div>
+<div id="clock" title="Temps prévu pour cette slide (clic : relancer, C : masquer)"><svg viewBox="0 0 44 44" aria-hidden="true"><circle class="bg" cx="22" cy="22" r="18"/><circle class="lap1" cx="22" cy="22" r="18"/><circle class="lap2" cx="22" cy="22" r="18"/></svg><span></span></div>
 <div id="toast"></div>
 <script>
 (function(){
@@ -350,7 +363,7 @@ function show(n,dir){
   if(n===cur){return;}
   slides.forEach(function(s,i){s.classList.toggle('active',i===n);s.classList.toggle('before',i<n);});
   $$('.step',slides[n]).forEach(function(el){if(dir<0){el.classList.add('shown');}else{el.classList.remove('shown');}});
-  cur=n;updateUI();countUp(slides[n]);tick();
+  cur=n;updateUI();countUp(slides[n]);tick();startClock();
   try{history.replaceState(null,'','#'+(n+1));}catch(e){}
 }
 function next(){
@@ -369,6 +382,32 @@ function tick(){
   });
 }
 setInterval(tick,1000);
+// Horloge de la slide : durée lue dans les notes (« Durée : 3 minutes », « Durée : 8 à 10 minutes »).
+// Absente de la version participants, dont les notes sont vides.
+var clock=$('#clock'),clockTxt=$('span',clock),lap1=$('.lap1',clock),lap2=$('.lap2',clock);
+var CIRC=2*Math.PI*18,clockDur=0,clockT0=0,clockHidden=load('clock')==='0';
+lap1.style.strokeDasharray=lap2.style.strokeDasharray=CIRC;
+function slideMinutes(s){
+  var a=$('aside',s),m=a&&/Durée\s*:\s*(\d+)(?:\s*à\s*(\d+))?\s*min[^\n]*/.exec(a.textContent);
+  if(!m){return 0;}
+  // Une slide de partie annonce la durée de toute la partie : on y reste une minute.
+  return /minutes de (théorie|démonstration)/.test(m[0])?1:+(m[2]||m[1]);
+}
+function drawClock(){
+  if(!clockDur){return;}
+  var e=(Date.now()-clockT0)/1000,p=e/clockDur,r=Math.round(Math.abs(clockDur-e));
+  lap1.style.strokeDashoffset=CIRC*(1-Math.min(p,1));
+  lap2.style.strokeDashoffset=CIRC*(1-Math.max(0,Math.min(p-1,1)));
+  clock.classList.toggle('warn',p>=0.8&&p<1);clock.classList.toggle('over',p>=1);
+  clockTxt.textContent=(p>=1?'+':'')+Math.floor(r/60)+':'+pad(r%60);
+}
+function startClock(){
+  clockDur=slideMinutes(slides[cur])*60;clockT0=Date.now();
+  clock.classList.toggle('on',!!clockDur&&!clockHidden);drawClock();
+}
+function toggleClock(){clockHidden=!clockHidden;store('clock',clockHidden?'0':'1');clock.classList.toggle('on',!!clockDur&&!clockHidden);toast(clockHidden?'Horloge masquée':'Horloge affichée');}
+clock.addEventListener('click',function(e){e.stopPropagation();clockT0=Date.now();drawClock();toast('Horloge relancée');});
+setInterval(drawClock,250);
 $$('.timer').forEach(function(b){
   var total=(+b.getAttribute('data-min'))*60,left=total,iv=null,t=$('.t',b),a=$('.act',b);
   function draw(){t.textContent=pad(Math.floor(left/60))+':'+pad(left%60);}
@@ -411,6 +450,7 @@ document.addEventListener('keydown',function(e){
   else if(k==='t'||k==='T'){nextPalette();}
   else if(k==='d'||k==='D'){toggleDark();}
   else if(k==='f'||k==='F'){full();}
+  else if(k==='c'||k==='C'){toggleClock();}
   else if(k==='?'||k==='h'||k==='H'){tgl(help);}
   else if(k==='Escape'){menu.classList.remove('open');help.classList.remove('open');}
 });

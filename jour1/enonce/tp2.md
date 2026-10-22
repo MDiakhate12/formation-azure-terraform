@@ -95,6 +95,12 @@ Lancez `terraform apply -var-file=dev.tfvars`, puis :
 2. Ouvrez `rg-<prénom>-dev`, puis **JSON View** (Vue JSON), en haut à droite de la vue d'ensemble.
 3. Comparez le champ `id` avec l'output : `terraform output resource_group_id`. C'est la même valeur.
 
+## Documentation
+
+- [Les variables](https://developer.hashicorp.com/terraform/language/values/variables)
+- [Les locals](https://developer.hashicorp.com/terraform/language/values/locals)
+- [Les outputs](https://developer.hashicorp.com/terraform/language/values/outputs)
+
 ## Questions
 
 - Le plan veut remplacer le resource group du TP1 (`-/+`). Pourquoi ?

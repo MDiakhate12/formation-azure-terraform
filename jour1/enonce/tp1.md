@@ -73,6 +73,12 @@ terraform apply      # la même infrastructure revient
 
 Actualisez la liste des resource groups entre les deux : le vôtre disparaît, puis revient.
 
+## Documentation
+
+- [`azurerm_resource_group`](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group)
+- [Le provider azurerm](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs)
+- [Les commandes Terraform](https://developer.hashicorp.com/terraform/cli/commands)
+
 ## Questions
 
 - Qu'a créé `terraform init` dans votre dossier ?

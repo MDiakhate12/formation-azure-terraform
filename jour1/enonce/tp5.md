@@ -137,6 +137,12 @@ output "dev_vnet" {
 3. Faites de même avec `vnet-dev` : même structure, autres plages. C'est le même module.
 4. Vérifiez que `rg-<prénom>-dev` est vide ou supprimé : l'ancien réseau a bien été détruit.
 
+## Documentation
+
+- [Les modules](https://developer.hashicorp.com/terraform/language/modules)
+- [L’expression `for`](https://developer.hashicorp.com/terraform/language/expressions/for)
+- [`cidrsubnet`](https://developer.hashicorp.com/terraform/language/functions/cidrsubnet)
+
 ## Questions
 
 - Combien de ressources le plan va-t-il créer ?

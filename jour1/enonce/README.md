@@ -7,6 +7,8 @@ Bloqué ? La solution de chaque TP est publiée juste après sa correction : `gi
 
 ## Avant de commencer
 
+Le formateur colle dans le chat un bloc prêt à l'emploi, avec l'id du tenant : copiez-le tel quel. Sinon :
+
 ```bash
 az login --tenant <tenant>              # id du tenant donné par le formateur
 az account show -o table

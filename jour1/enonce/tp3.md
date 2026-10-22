@@ -81,6 +81,12 @@ terraform apply -var-file=dev.tfvars
 2. Ouvrez le VNet, menu **Settings > Address space** (Paramètres > Espace d'adressage) : `10.0.0.0/16`.
 3. Menu **Settings > Subnets** (Paramètres > Sous-réseaux) : `snet-app` et `snet-data`, avec leurs plages et le nombre d'adresses disponibles.
 
+## Documentation
+
+- [`azurerm_virtual_network`](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_network)
+- [`azurerm_subnet`](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/subnet)
+- [Les références entre ressources](https://developer.hashicorp.com/terraform/language/expressions/references)
+
 ## Questions
 
 - Dans quel ordre Terraform crée-t-il les ressources ? Qui le décide ?

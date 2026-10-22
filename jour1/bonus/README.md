@@ -135,6 +135,13 @@ La VM coûte tant qu'elle existe :
 terraform destroy -var-file=dev.tfvars
 ```
 
+## Documentation
+
+- [`azurerm_network_interface`](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/network_interface)
+- [`azurerm_linux_virtual_machine`](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_virtual_machine)
+- [`tls_private_key`](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/private_key)
+- [`templatefile`](https://developer.hashicorp.com/terraform/language/functions/templatefile)
+
 ## Pour aller plus loin
 
 Ajoutez une IP publique et une règle NSG qui autorise SSH depuis votre seule adresse IP, connectez-vous
