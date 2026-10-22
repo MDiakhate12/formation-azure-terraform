@@ -87,6 +87,14 @@ terraform plan -var-file=dev.tfvars -var="environment=prod"
 
 - `-var-file` : charge un fichier de valeurs. `-var` : donne une valeur en ligne de commande.
 
+## 5. Vérifier dans le portail
+
+Lancez `terraform apply -var-file=dev.tfvars`, puis :
+
+1. **Resource groups** (Groupes de ressources) : `rg-<prénom>-tf` a disparu, `rg-<prénom>-dev` l'a remplacé.
+2. Ouvrez `rg-<prénom>-dev`, puis **JSON View** (Vue JSON), en haut à droite de la vue d'ensemble.
+3. Comparez le champ `id` avec l'output : `terraform output resource_group_id`. C'est la même valeur.
+
 ## Questions
 
 - Le plan veut remplacer le resource group du TP1 (`-/+`). Pourquoi ?

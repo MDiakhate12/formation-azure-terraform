@@ -57,14 +57,21 @@ terraform plan       # montre ce qui va changer, sans rien faire
 terraform apply      # applique, après votre "yes"
 ```
 
-Retrouvez votre resource group dans le portail Azure.
+## 5. Retrouver le resource group dans le portail
 
-## 5. Détruire et recommencer
+1. Ouvrez [portal.azure.com](https://portal.azure.com), dans le tenant de la formation (voir le [README](README.md)).
+2. Barre de recherche en haut : tapez **Resource groups** (Groupes de ressources), ouvrez le service.
+3. Filtrez sur votre prénom : `rg-<prénom>-tf` apparaît, en **Sweden Central**.
+4. Ouvrez-le : **Overview** (Vue d'ensemble) est vide, c'est normal, il ne contient encore rien.
+
+## 6. Détruire et recommencer
 
 ```bash
 terraform destroy    # supprime tout ce que le state connaît
 terraform apply      # la même infrastructure revient
 ```
+
+Actualisez la liste des resource groups entre les deux : le vôtre disparaît, puis revient.
 
 ## Questions
 
@@ -80,3 +87,5 @@ Ajoutez un tag et lisez le plan : quel symbole apparaît ?
     owner = "<prénom>"
   }
 ```
+
+Après l'`apply`, ouvrez le resource group, menu **Tags** (Étiquettes) : `owner` y est.

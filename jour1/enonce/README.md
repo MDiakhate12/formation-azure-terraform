@@ -15,6 +15,17 @@ export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 
 Sous Windows PowerShell : `$env:ARM_SUBSCRIPTION_ID = (az account show --query id -o tsv)`.
 
+## Le portail Azure
+
+Ouvrez le lien d'invitation reçu par e-mail, ou `https://portal.azure.com/<tenant>`.
+Vous êtes **invité** dans le tenant de la formation : si le portail affiche votre propre annuaire, changez-en.
+Icône engrenage (Settings / Paramètres), puis **Directories + subscriptions** (Annuaires + abonnements), et choisissez le tenant de la formation.
+
+Pour retrouver une ressource : tapez son nom dans la barre de recherche en haut, ou ouvrez **Resource groups** (Groupes de ressources).
+Le portail est en anglais ou en français selon vos réglages : les deux libellés sont donnés.
+
+Sans le portail, la CLI suffit : `az resource list -g <resource group> -o table`.
+
 ## Règles de la subscription partagée
 
 - Préfixez **toutes** vos ressources par votre prénom, en minuscules et sans accent.

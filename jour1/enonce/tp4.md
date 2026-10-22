@@ -99,6 +99,15 @@ terraform plan -var-file=dev.tfvars
 terraform plan -var-file=dev.tfvars -var="enable_data_nsg=true"
 ```
 
+## 6. Retrouver le NSG dans le portail
+
+Après un `apply` :
+
+1. Dans `rg-<prénom>-dev`, ouvrez `nsg-<prénom>-dev-app`.
+2. Menu **Settings > Inbound security rules** (Paramètres > Règles de sécurité de trafic entrant) : vos règles `allow-https` (100) et `deny-ssh` (200), au-dessus des règles par défaut d'Azure (65000 et plus).
+3. Menu **Settings > Subnets** (Paramètres > Sous-réseaux) : le NSG est associé à `snet-app`.
+4. Côté VNet, **Subnets** (Sous-réseaux) : la colonne **Security group** (Groupe de sécurité) indique `nsg-<prénom>-dev-app` pour `snet-app`, rien pour `snet-data`.
+
 ## Questions
 
 - Comment s'appelle chaque règle dans le state (`terraform state list`) ?

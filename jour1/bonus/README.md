@@ -120,9 +120,16 @@ resource "azurerm_linux_virtual_machine" "vm" {
 - `admin_ssh_key` : la clé publique autorisée à se connecter. Aucun mot de passe.
 - `source_image_reference` : l'image du système (Ubuntu 24.04).
 
-## 7. Vérifier, puis détruire
+## 7. Retrouver la VM dans le portail
 
-Dans le portail, ouvrez la VM : onglet Diagnostics de démarrage, ou Exécuter une commande avec `curl localhost`. Puis :
+1. Ouvrez `rg-<prénom>-vm` : la VM, sa carte réseau, son disque (`vm-<prénom>_OsDisk_...`), le VNet. Azure a créé le disque pour vous.
+2. Ouvrez `vm-<prénom>` : **Overview** (Vue d'ensemble) affiche la taille `Standard_D2as_v6` et l'adresse IP privée. Comparez avec `terraform output private_ip`.
+3. Menu **Operations > Run command** (Opérations > Exécuter la commande), choisissez **RunShellScript**, tapez `curl -s localhost` et lancez.
+   Après une à deux minutes, la sortie affiche votre page : cloud-init a installé nginx.
+
+## 8. Détruire
+
+La VM coûte tant qu'elle existe :
 
 ```bash
 terraform destroy -var-file=dev.tfvars

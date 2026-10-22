@@ -75,6 +75,12 @@ terraform plan -var-file=dev.tfvars
 terraform apply -var-file=dev.tfvars
 ```
 
+## 6. Retrouver le réseau dans le portail
+
+1. Ouvrez `rg-<prénom>-dev` : **Overview** (Vue d'ensemble) liste maintenant `vnet-<prénom>-dev`.
+2. Ouvrez le VNet, menu **Settings > Address space** (Paramètres > Espace d'adressage) : `10.0.0.0/16`.
+3. Menu **Settings > Subnets** (Paramètres > Sous-réseaux) : `snet-app` et `snet-data`, avec leurs plages et le nombre d'adresses disponibles.
+
 ## Questions
 
 - Dans quel ordre Terraform crée-t-il les ressources ? Qui le décide ?

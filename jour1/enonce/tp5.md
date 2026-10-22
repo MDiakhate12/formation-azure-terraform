@@ -130,6 +130,13 @@ output "dev_vnet" {
 
 - `module.network_dev.vnet_id` : lit un output du module.
 
+## 7. Retrouver les deux réseaux dans le portail
+
+1. Ouvrez `rg-<prénom>-reseau` : **Overview** (Vue d'ensemble) liste `vnet-dev`, `vnet-prod`, `nsg-dev-app` et `nsg-prod-app`.
+2. Ouvrez `vnet-prod`, menu **Settings > Subnets** (Paramètres > Sous-réseaux) : `snet-app` (`10.20.1.0/24`, avec son NSG) et `snet-data`.
+3. Faites de même avec `vnet-dev` : même structure, autres plages. C'est le même module.
+4. Vérifiez que `rg-<prénom>-dev` est vide ou supprimé : l'ancien réseau a bien été détruit.
+
 ## Questions
 
 - Combien de ressources le plan va-t-il créer ?
