@@ -40,11 +40,56 @@ Fermez puis rouvrez le terminal après l'installation. Git Bash, installé avec 
 
 ### macOS (Homebrew)
 
+Installez les outils **un par un**, et vérifiez chacun avant de passer au suivant : si l'un échoue, vous savez lequel.
+Pas encore de Homebrew ? Voir [brew.sh](https://brew.sh).
+
+1. Terraform :
+
 ```bash
 brew tap hashicorp/tap
-brew install hashicorp/tap/terraform azure-cli kubernetes-cli git
+```
+
+```bash
+brew install hashicorp/tap/terraform
+```
+
+```bash
+terraform version
+```
+
+2. Azure CLI :
+
+```bash
+brew install azure-cli
+```
+
+```bash
+az version
+```
+
+3. kubectl :
+
+```bash
+brew install kubernetes-cli
+```
+
+```bash
+kubectl version --client
+```
+
+4. git (souvent déjà présent) :
+
+```bash
+git --version || brew install git
+```
+
+5. VS Code :
+
+```bash
 brew install --cask visual-studio-code
 ```
+
+Si `brew` affiche « Tier 3 configuration » ou se met à compiler pendant de longues minutes, votre version de macOS n'est plus prise en charge par Homebrew : arrêtez (Ctrl+C) et prévenez l'organisme de formation avant la session, une autre méthode d'installation existe.
 
 ### Linux
 
