@@ -16,8 +16,7 @@ Les mêmes repères qu'au jour 1 :
 | **À lancer** | Tapez les commandes dans le terminal, dans le dossier de travail du TP. La ligne `#` au-dessus dit ce que fait chaque commande. |
 | **Vérifier** | Ce que vous devez obtenir. Sinon, arrêtez-vous et demandez. |
 
-> [!NOTE]
-> **Explication.** Ces encadrés expliquent le code : à lire, rien à faire.
+> **Explication.** Ces citations expliquent le code : à lire, rien à faire.
 
 Tout ce qui est entre chevrons `< >` est à remplacer, chevrons compris : `rg-<prénom>-tfstate` devient `rg-alexandre-tfstate`.
 
@@ -66,6 +65,9 @@ Rappels : préfixe par votre prénom, région `swedencentral`, taille `Standard_
 **Avant de partir** : `terraform destroy` sur le cluster du TP5. Il coûte à l'heure, et demain le code du cluster est fourni.
 
 ## TP1 : un state distant
+
+<details>
+<summary><b>Afficher l'énoncé du TP1</b></summary>
 
 **Objectif** : créer avec Terraform le stockage du state, puis y déplacer le state. **Durée** : 30 minutes.
 **Dossier de travail** : `jour2/tp1/` (le fichier `versions.tf` y est déjà)
@@ -137,7 +139,6 @@ resource "azurerm_storage_container" "state" {
 }
 ```
 
-> [!NOTE]
 > **Explication.**
 > - Le nom d'un compte de stockage est **unique dans tout Azure** : 3 à 24 caractères, minuscules et chiffres uniquement. D'où le prénom sans accent ni tiret.
 > - `LRS` : trois copies dans un seul centre de données. Suffisant pour un TP.
@@ -181,7 +182,6 @@ terraform {
 }
 ```
 
-> [!NOTE]
 > **Explication.**
 > - Un bloc `backend` **n'accepte pas de variables** : les valeurs sont écrites en dur, d'où `<prénom>` à remplacer à la main.
 > - `key` : le nom du fichier du state dans le conteneur.
@@ -247,7 +247,12 @@ terraform state list
 terraform state show azurerm_storage_account.state
 ```
 
+</details>
+
 ## TP2 : importer et déplacer
+
+<details>
+<summary><b>Afficher l'énoncé du TP2</b></summary>
 
 **Objectif** : faire adopter par Terraform une ressource créée à la main, puis la renommer dans le code sans la recréer. **Durée** : 30 minutes.
 **Dossier de travail** : `jour2/tp2/` (le fichier `versions.tf` y est déjà)
@@ -299,7 +304,6 @@ resource "azurerm_resource_group" "legacy" {
 }
 ```
 
-> [!NOTE]
 > **Explication.**
 > - `data "azurerm_subscription" "current"` **lit** la subscription courante, sans rien créer. Son `id` vaut `/subscriptions/<id>`.
 > - `import` : `to` est l'adresse dans le code, `id` l'identifiant de la ressource dans Azure. Rien n'est importé avant l'`apply` : vous pouvez lire le plan d'abord.
@@ -333,7 +337,6 @@ moved {
 }
 ```
 
-> [!NOTE]
 > **Explication.** `moved` dit à Terraform : « c'est la même ressource, elle a seulement changé d'adresse dans le code ». Le bloc `import` peut rester : il est ignoré pour une ressource déjà dans le state.
 
 **À lancer** :
@@ -400,7 +403,12 @@ Supprimez le bloc `resource` et laissez Terraform l'écrire à votre place :
 terraform plan -var-file=dev.tfvars -generate-config-out=generated.tf
 ```
 
+</details>
+
 ## TP3 : une identité managée avec un rôle
+
+<details>
+<summary><b>Afficher l'énoncé du TP3</b></summary>
 
 **Objectif** : créer une identité sans mot de passe et lui donner un accès minimal. **Durée** : 40 minutes.
 **Dossier de travail** : `jour2/tp3/` (le fichier `versions.tf` y est déjà)
@@ -451,7 +459,6 @@ resource "azurerm_role_assignment" "reader" {
 }
 ```
 
-> [!NOTE]
 > **Explication.**
 > - `scope` : la portée. Ici le resource group : l'identité ne verra rien d'autre.
 > - `principal_id` : l'identifiant de l'identité dans Microsoft Entra ID, celui à qui l'on donne des rôles.
@@ -528,7 +535,12 @@ output "my_object_id" {
 }
 ```
 
+</details>
+
 ## TP4 : premier pipeline
+
+<details>
+<summary><b>Afficher l'énoncé du TP4</b></summary>
 
 **Objectif** : faire vérifier votre code Terraform automatiquement, à chaque pull request. **Durée** : 30 minutes.
 **Dossier de travail** : votre propre dépôt GitHub, cloné **en dehors** du dépôt de la formation
@@ -588,7 +600,6 @@ jobs:
       - run: terraform ...                  # À COMPLÉTER : la commande qui vérifie la syntaxe
 ```
 
-> [!NOTE]
 > **Explication.**
 > - `on` : quand le workflow se déclenche. Ici, à chaque pull request et à chaque push sur `main`.
 > - `runs-on: ubuntu-latest` : une machine Linux fournie par GitHub, effacée à la fin.
@@ -650,7 +661,12 @@ Ajoutez un job `plan`, qui se connecte à Azure avec un service principal.
 1. **À copier** : le contenu de `jour2/tp4/plan-job.yml` (dépôt de la formation), à la fin de votre `terraform.yml`, sous `jobs:`.
 2. **À faire** : dans votre dépôt GitHub, **Settings > Secrets and variables > Actions**, créez les quatre secrets `ARM_CLIENT_ID`, `ARM_CLIENT_SECRET`, `ARM_TENANT_ID` et `ARM_SUBSCRIPTION_ID`. Le formateur vous les donne.
 
+</details>
+
 ## TP5 : mon cluster AKS
+
+<details>
+<summary><b>Afficher l'énoncé du TP5</b></summary>
 
 **Objectif** : créer un cluster Kubernetes managé à un nœud, s'y connecter, puis le détruire. **Durée** : 50 minutes.
 **Dossier de travail** : `jour2/tp5/` (le fichier `versions.tf` y est déjà)
@@ -704,7 +720,6 @@ resource "azurerm_kubernetes_cluster" "main" {
 }
 ```
 
-> [!NOTE]
 > **Explication.**
 > - `default_node_pool` : le groupe de nœuds système. Pas d'argument `zones` : la création ne dépend pas de la capacité d'une zone précise.
 > - `identity { type = "SystemAssigned" }` : le cluster reçoit sa propre identité managée, pour créer ses disques et ses IP.
@@ -819,7 +834,12 @@ terraform apply -var-file=dev.tfvars
 
 Il double vos vCPU : détruisez-le dès que vous l'avez vu (`terraform destroy -var-file=dev.tfvars`).
 
+</details>
+
 ## Bonus : un pipeline sans secret (OIDC)
+
+<details>
+<summary><b>Afficher l'énoncé du bonus</b></summary>
 
 **Objectif** : laisser GitHub Actions se connecter à Azure **sans aucun secret**, grâce à la fédération d'identité. **Durée** : 30 minutes.
 **Dossier de travail** : `jour2/bonus/` (les fichiers `versions.tf` et `azure-oidc.yml` y sont déjà)
@@ -897,7 +917,6 @@ resource "azurerm_federated_identity_credential" "github" {
 
 **À écrire** à la fin : une `azurerm_role_assignment` nommée `reader`, qui donne `Reader` à l'identité sur son resource group (comme au TP3).
 
-> [!NOTE]
 > **Explication.**
 > - `issuer` : qui émet les jetons, ici GitHub. `audience` : à qui ils sont destinés, ici Azure.
 > - `subject` : **de quel dépôt et de quelle branche** le jeton doit venir. Deux identités fédérées : une pour `main`, une pour les pull requests.
@@ -958,3 +977,5 @@ git push origin HEAD:main
 ```bash
 terraform destroy -var-file=dev.tfvars
 ```
+
+</details>

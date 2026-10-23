@@ -23,8 +23,7 @@ Les mêmes repères qu'aux jours 1 et 2 :
 | **À lancer** | Tapez les commandes dans le terminal, dans le dossier de travail du TP. La ligne `#` au-dessus dit ce que fait chaque commande. |
 | **Vérifier** | Ce que vous devez obtenir. Sinon, arrêtez-vous et demandez. |
 
-> [!NOTE]
-> **Explication.** Ces encadrés expliquent le code : à lire, rien à faire.
+> **Explication.** Ces citations expliquent le code : à lire, rien à faire.
 
 Tout ce qui est entre chevrons `< >` est à remplacer, chevrons compris : `aks-<prénom>` devient `aks-alexandre`.
 
@@ -79,7 +78,6 @@ kubectl get nodes
 
 **Vérifier** : `kubectl get nodes` affiche un nœud `Ready`. Pendant la création, le formateur fait le rappel de la veille.
 
-> [!NOTE]
 > **Explication.** Le socle contient un VNet, un sous-réseau `snet-aks`, une identité managée pour le cluster (avec le rôle `Network Contributor` sur ce sous-réseau) et le cluster `aks-<prénom>`. Lisez `aks.tf` pendant l'attente : vous le modifierez au TP3.
 
 ## Sommaire
@@ -108,6 +106,9 @@ az group list --query "[?starts_with(name, 'rg-<prénom>')].name" -o table
 
 ## TP1 : brancher Terraform sur le cluster
 
+<details>
+<summary><b>Afficher l'énoncé du TP1</b></summary>
+
 **Objectif** : configurer le provider `kubernetes` et créer un premier objet dans le cluster. **Durée** : 30 minutes.
 **Dossier de travail** : `jour3/app/`
 
@@ -129,7 +130,6 @@ kubectl config current-context
 
 **Vérifier** : le contexte affiché est `aks-<prénom>`. Sinon, relancez la commande `get_credentials` du démarrage.
 
-> [!NOTE]
 > **Explication.** Un **contexte** kubectl désigne un cluster et un utilisateur. Plusieurs clusters dans `~/.kube/config` : se tromper de contexte, c'est déployer sur le cluster de quelqu'un d'autre.
 
 ### Étape 2 : découvrir le dossier fourni
@@ -141,7 +141,6 @@ cd ../app
 ls
 ```
 
-> [!NOTE]
 > **Explication.** Le dossier contient déjà `versions.tf` (providers `azurerm` et `kubernetes`), `variables.tf` (`prenom` et `kube_context`), `dev.tfvars`, et le module `modules/app` que vous appellerez au TP2.
 
 ### Étape 3 : le provider kubernetes
@@ -155,7 +154,6 @@ provider "kubernetes" {
 }
 ```
 
-> [!NOTE]
 > **Explication.**
 > - `config_path` : le fichier écrit par `az aks get-credentials`. Le provider s'y connecte comme `kubectl`.
 > - `coalesce(a, b)` renvoie la première valeur non vide : `kube_context` si vous l'avez donné, sinon `aks-<prénom>`.
@@ -175,7 +173,6 @@ resource "kubernetes_namespace_v1" "app" {
 }
 ```
 
-> [!NOTE]
 > **Explication.** Les ressources du provider kubernetes 3 finissent par `_v1` : c'est la version de l'API Kubernetes qu'elles utilisent.
 
 ### Étape 5 : créer le namespace
@@ -215,7 +212,12 @@ kubectl get ns
 
 **À lancer** : `terraform state list`. Quelles ressources Terraform connaît-il dans le cluster ?
 
+</details>
+
 ## TP2 : mon application en ligne
+
+<details>
+<summary><b>Afficher l'énoncé du TP2</b></summary>
 
 **Objectif** : voir votre application tourner sur Internet, avec une adresse fournie par Azure. **Durée** : 30 minutes.
 **Dossier de travail** : `jour3/app/`
@@ -246,7 +248,6 @@ module "app" {
 }
 ```
 
-> [!NOTE]
 > **Explication.**
 > - `kubernetes_namespace_v1.app.metadata[0].name` : le nom du namespace du TP1. La référence garantit qu'il existe avant l'application.
 > - `registry` vaut `acrformationtf.azurecr.io` : les images s'y tirent sans authentification.
@@ -279,7 +280,6 @@ resource "kubernetes_service_v1" "frontend" {
 }
 ```
 
-> [!NOTE]
 > **Explication.**
 > - `selector` relie le Service aux pods qui portent ce label : c'est ainsi qu'il sait où envoyer le trafic.
 > - `port` est le port exposé, `target_port` celui sur lequel écoute le conteneur.
@@ -301,7 +301,6 @@ output "url" {
 }
 ```
 
-> [!NOTE]
 > **Explication.** `status[0].load_balancer[0].ingress[0].ip` descend dans le statut du Service : le premier point d'entrée du load balancer, puis son adresse IP.
 
 **À écrire** dans un nouveau fichier `outputs.tf` (à la racine de `app/`) : un output `app_url` qui affiche `module.app.url`.
@@ -355,7 +354,12 @@ kubectl get pods -n app
 **À compléter** dans l'appel du module : ajoutez `dns_label_enabled = true`, puis `apply`.
 Ouvrez ensuite `http://tf-<prénom>.swedencentral.cloudapp.azure.com` : un nom fourni par Azure, sans aucune configuration DNS.
 
+</details>
+
 ## TP3 : exploiter le cluster
+
+<details>
+<summary><b>Afficher l'énoncé du TP3</b></summary>
 
 **Objectif** : modifier le cluster en place : labels, autoscaler, puis montée de version. **Durée** : 40 minutes.
 **Dossier de travail** : `jour3/socle/`
@@ -380,7 +384,6 @@ Toutes les modifications se font dans `jour3/socle/aks.tf`, dans le bloc `defaul
     }
 ```
 
-> [!NOTE]
 > **Explication.** Les **tags** sont des étiquettes Azure : facturation, inventaire. Les **labels** sont des étiquettes Kubernetes : elles servent à choisir le nœud d'un pod.
 
 **À lancer** :
@@ -433,7 +436,6 @@ La montée de version prend **15 à 25 minutes** : lancez-la tôt. Azure ajoute 
 
 **À faire** : dans `variables.tf`, passez la valeur par défaut de `kubernetes_version` de `"1.35"` à `"1.36"`.
 
-> [!NOTE]
 > **Explication.**
 > - `automatic_upgrade_channel = "patch"` : Azure appliquera ensuite tout seul les correctifs (1.36.x).
 > - `max_surge` : combien de nœuds supplémentaires pendant la mise à jour. Avec un nœud, 10 % arrondi donne un nœud de plus : 2 vCPU de quota pendant la montée.
@@ -490,7 +492,12 @@ terraform apply -var-file=dev.tfvars
 Puis, dans `jour3/app/main.tf`, ajoutez `node_selector = { role = "apps" }` à l'appel du module, et `apply` dans `app/`.
 Sur quel nœud vont les pods (`kubectl get pods -n app -o wide`) ? Détruisez le pool ensuite : il double vos vCPU.
 
+</details>
+
 ## TP4 : pannes volontaires
+
+<details>
+<summary><b>Afficher l'énoncé du TP4</b></summary>
 
 **Objectif** : diagnostiquer et corriger trois pannes dans une application préparée. **Durée** : 30 minutes.
 **Dossier de travail** : `jour3/pannes/`
@@ -515,7 +522,6 @@ terraform apply -var-file=dev.tfvars
 kubectl get pods -n pannes
 ```
 
-> [!NOTE]
 > **Explication.** `-backend-config` complète le bloc `backend` de `versions.tf` au moment de l'`init`. C'est la façon de passer une valeur qui change d'une personne à l'autre, puisqu'un backend n'accepte pas de variables.
 
 ### Étape 2 : panne 1, un pod qui ne démarre pas
@@ -567,7 +573,6 @@ Sous Windows sans Git Bash : lancez `terraform apply -var-file=dev.tfvars`, puis
 
 **À faire** : levez le verrou avec la commande prévue par Terraform, en lui donnant cet ID, puis relancez le `plan`.
 
-> [!NOTE]
 > **Explication.** `terraform force-unlock <ID>` lève un verrou. À n'utiliser **que** si vous êtes sûr que plus personne n'est en train de travailler sur ce state.
 
 ### Étape 5 : les journaux détaillés de Terraform
@@ -613,7 +618,12 @@ terraform plan -var-file=dev.tfvars -refresh-only
 
 Que propose Terraform ? Puis `terraform apply -var-file=dev.tfvars` le recrée.
 
+</details>
+
 ## TP5 : démonstration finale
+
+<details>
+<summary><b>Afficher l'énoncé du TP5</b></summary>
 
 **Objectif** : présenter votre application et votre infrastructure en deux minutes. **Durée** : 30 minutes.
 **Dossier de travail** : `jour3/socle/` et `jour3/app/`
@@ -647,7 +657,12 @@ Notez ce que vous changeriez : nombre de nœuds et zones, state distant, pipelin
 
 Pour aller plus loin : montrez le nom DNS fourni par Azure plutôt que l'IP (TP2, « Pour aller plus loin »).
 
+</details>
+
 ## Bonus : déployer un chart Helm
+
+<details>
+<summary><b>Afficher l'énoncé du bonus</b></summary>
 
 **Objectif** : installer une application packagée par Helm, avec Terraform. **Durée** : 20 minutes.
 **Dossier de travail** : `jour3/bonus/`
@@ -687,7 +702,6 @@ provider "helm" {
 }
 ```
 
-> [!NOTE]
 > **Explication.** Avec le provider helm 3, la connexion au cluster est un **attribut** (`kubernetes = { ... }`, avec un `=`), plus un bloc : une différence avec la version 2 qu'on trouve encore dans beaucoup d'exemples.
 
 ### Étape 2 : les variables
@@ -729,7 +743,6 @@ resource "helm_release" "podinfo" {
 }
 ```
 
-> [!NOTE]
 > **Explication.**
 > - `repository` et `chart` : où trouver le paquet, et lequel. `version` le fige : le même code installe toujours la même version.
 > - `set` : des valeurs qui remplacent celles du chart, comme le nombre de réplicas.
@@ -773,3 +786,5 @@ kubectl port-forward -n bonus svc/podinfo 9898:9898
 ### Pour finir
 
 **À lancer** : `terraform destroy -var-file=dev.tfvars`.
+
+</details>

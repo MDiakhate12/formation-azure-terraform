@@ -17,8 +17,7 @@ Chaque étape d'un TP commence par une phrase qui dit **pourquoi** on la fait, p
 | **À lancer** | Tapez les commandes dans le terminal, dans votre dossier de travail, une par une. La ligne `#` au-dessus de chaque commande dit ce qu'elle fait. |
 | **Vérifier** | Ce que vous devez obtenir. Si ce n'est pas le cas, arrêtez-vous et demandez. |
 
-> [!NOTE]
-> **Explication.** Les encadrés comme celui-ci expliquent le code ou les commandes. Ils sont à lire : il n'y a rien à faire.
+> **Explication.** Les citations comme celle-ci expliquent le code ou les commandes. Ils sont à lire : il n'y a rien à faire.
 
 Les TP deviennent plus autonomes au fil de la journée : beaucoup de code à copier au TP1, de plus en plus à compléter puis à écrire ensuite.
 
@@ -96,6 +95,9 @@ Sans le portail, la CLI suffit : `az resource list -g <resource group> -o table`
 
 ## TP1 : mon premier resource group
 
+<details>
+<summary><b>Afficher l'énoncé du TP1</b></summary>
+
 **Objectif** : créer, puis détruire, un resource group avec Terraform. **Durée** : 30 minutes.
 **Dossier de travail** : `jour1/`
 Avant de commencer, lisez la partie [Lire les énoncés](#lire-les-énoncés), plus haut : elle explique les repères **À copier**, **À compléter**, **À lancer** et la notation `<prénom>`.
@@ -145,7 +147,6 @@ provider "azurerm" {
 }
 ```
 
-> [!NOTE]
 > **Explication.**
 > - `terraform { }` : les réglages de Terraform lui-même. `required_version` : la version minimale acceptée.
 > - `required_providers` : les plugins à télécharger. `source` dit où les trouver, `version` lesquelles accepter (`~> 5.0` : toute version 5.x, jamais 6.0).
@@ -164,7 +165,6 @@ resource "azurerm_resource_group" "main" {
 }
 ```
 
-> [!NOTE]
 > **Explication.**
 > - `resource` : une ressource que Terraform crée et gère.
 > - `"azurerm_resource_group"` : son type, fourni par le provider. `"main"` : son nom **dans le code**, pour y faire référence plus tard.
@@ -241,8 +241,12 @@ Ajoutez un tag au resource group, puis lancez `terraform plan` : quel symbole ap
 
 Après l'`apply`, ouvrez le resource group, menu **Tags** (Étiquettes) : `owner` y est.
 
+</details>
 
 ## TP2 : variabiliser et nommer
+
+<details>
+<summary><b>Afficher l'énoncé du TP2</b></summary>
 
 **Objectif** : remplacer les valeurs écrites en dur par des variables, des locals et des outputs. **Durée** : 30 minutes.
 **Dossier de travail** : `jour1/`
@@ -252,7 +256,6 @@ Après l'`apply`, ouvrez le resource group, menu **Tags** (Étiquettes) : `owner
 Vous avez un resource group `rg-<prénom>-tf`, mais son nom et sa région sont écrits en dur dans `main.tf`.
 À la fin de ce TP, le même code servira à plusieurs environnements : le nom sera calculé à partir de votre prénom et de l'environnement (`rg-<prénom>-dev`).
 
-> [!IMPORTANT]
 > **Avant de commencer** : dans `jour1/`, lancez `terraform state list`. La liste doit montrer les ressources du TP précédent.
 > Liste vide ? Vous n'êtes pas dans le bon dossier : revenez dans `jour1/` (`cd` depuis la racine du dépôt).
 
@@ -295,7 +298,6 @@ variable "location" {
 }
 ```
 
-> [!NOTE]
 > **Explication.**
 > - `type` : le type attendu (`string`, `number`, `bool`, `list(...)`, `map(...)`).
 > - `default` : la valeur utilisée si personne n'en donne. `prenom` n'en a pas : Terraform devra la recevoir.
@@ -320,7 +322,6 @@ resource "azurerm_resource_group" "main" {
 }
 ```
 
-> [!NOTE]
 > **Explication.**
 > - `var.x` lit une variable, `local.x` lit un local.
 > - `"${...}"` insère une valeur dans une chaîne : avec `alexandre` et `dev`, `name_prefix` vaut `alexandre-dev`, et le nom devient `rg-alexandre-dev`.
@@ -338,7 +339,6 @@ output "resource_group_id" {
 }
 ```
 
-> [!NOTE]
 > **Explication.** `azurerm_resource_group.main.id` se lit : type de la ressource, puis son nom dans le code, puis l'attribut. L'`id` n'est connu qu'une fois la ressource créée.
 
 ### Étape 4 : un fichier de valeurs
@@ -352,7 +352,6 @@ prenom      = "<prénom>"   # À COMPLÉTER : votre prénom, par exemple "alexan
 environment = "dev"
 ```
 
-> [!NOTE]
 > **Explication.** Un `.tfvars` ne contient que des valeurs, pas de code. Terraform ne le lit que si vous le lui indiquez avec `-var-file` (sauf s'il s'appelle exactement `terraform.tfvars`).
 
 ### Étape 5 : planifier avec ce fichier
@@ -412,8 +411,12 @@ Faites échouer la validation volontairement, puis lisez le message :
 terraform plan -var-file=dev.tfvars -var="environment=test"
 ```
 
+</details>
 
 ## TP3 : VNet et deux sous-réseaux
+
+<details>
+<summary><b>Afficher l'énoncé du TP3</b></summary>
 
 **Objectif** : construire le socle réseau du fil rouge. **Durée** : 40 minutes.
 **Dossier de travail** : `jour1/`
@@ -424,7 +427,6 @@ Vous avez un resource group `rg-<prénom>-dev`, nommé par variables.
 À la fin de ce TP, il contiendra un réseau virtuel (VNet) et deux sous-réseaux : `snet-app` pour les applications, `snet-data` pour les données.
 Le TP4 les protégera, le TP5 en fera un module réutilisable.
 
-> [!IMPORTANT]
 > **Avant de commencer** : dans `jour1/`, lancez `terraform state list`. La liste doit montrer les ressources du TP précédent.
 > Liste vide ? Vous n'êtes pas dans le bon dossier : revenez dans `jour1/` (`cd` depuis la racine du dépôt).
 
@@ -442,7 +444,6 @@ variable "address_space" {
 }
 ```
 
-> [!NOTE]
 > **Explication.**
 > - `list(string)` : une liste de chaînes. Un VNet peut avoir plusieurs plages, d'où la liste.
 > - `10.0.0.0/16` : une plage CIDR de 65 536 adresses (de `10.0.0.0` à `10.0.255.255`). Le `/16` dit que les 16 premiers bits sont fixes.
@@ -460,7 +461,6 @@ resource "azurerm_virtual_network" "main" {
 }
 ```
 
-> [!NOTE]
 > **Explication.**
 > - `azurerm_resource_group.main.location` est une **référence** : on lit la région du resource group au lieu de la recopier.
 > - Une référence crée aussi une **dépendance** : Terraform sait qu'il doit créer le resource group avant le VNet.
@@ -480,7 +480,6 @@ resource "azurerm_subnet" "app" {
 
 **À écrire** : le second sous-réseau, `azurerm_subnet` nommé `data` dans le code, `snet-data` dans Azure, en `10.0.2.0/24`. Même structure que `app`.
 
-> [!NOTE]
 > **Explication.**
 > - `address_prefixes` : la plage du sous-réseau, incluse dans celle du VNet. Un `/24` fait 256 adresses, dont 5 réservées par Azure.
 > - Deux sous-réseaux d'un même VNet ne doivent pas se chevaucher : `10.0.1.0/24` et `10.0.2.0/24` sont bien séparés.
@@ -502,7 +501,6 @@ output "subnet_ids" {
 }
 ```
 
-> [!NOTE]
 > **Explication.** Un output peut renvoyer une **map** `{ clé = valeur }` : plusieurs valeurs nommées en un seul output.
 
 ### Étape 5 : planifier, puis appliquer
@@ -542,8 +540,12 @@ terraform apply -var-file=dev.tfvars
 
 **À écrire** : un troisième sous-réseau. Quel CIDR choisissez-vous, et pourquoi ?
 
+</details>
 
 ## TP4 : NSG et règles avec for_each
+
+<details>
+<summary><b>Afficher l'énoncé du TP4</b></summary>
 
 **Objectif** : filtrer le trafic d'un sous-réseau avec un NSG piloté par une variable. **Durée** : 30 minutes.
 **Dossier de travail** : `jour1/`
@@ -554,7 +556,6 @@ Votre resource group contient un VNet et deux sous-réseaux, ouverts à tout.
 À la fin de ce TP, `snet-app` sera protégé par un **NSG** (Network Security Group, le pare-feu d'Azure) : HTTPS autorisé, SSH refusé.
 Les règles viendront d'une variable : en ajouter une ne demandera aucune nouvelle ressource dans le code.
 
-> [!IMPORTANT]
 > **Avant de commencer** : dans `jour1/`, lancez `terraform state list`. La liste doit montrer les ressources du TP précédent.
 > Liste vide ? Vous n'êtes pas dans le bon dossier : revenez dans `jour1/` (`cd` depuis la racine du dépôt).
 
@@ -577,7 +578,6 @@ variable "nsg_rules" {
 }
 ```
 
-> [!NOTE]
 > **Explication.**
 > - `map(object({...}))` : une map dont chaque valeur est un objet aux champs typés. La clé (`allow-https`, `deny-ssh`) servira de nom à la règle.
 > - `priority` : de 100 à 4096. La règle à la plus petite priorité est évaluée en premier.
@@ -618,7 +618,6 @@ resource "azurerm_network_security_rule" "app" {
 }
 ```
 
-> [!NOTE]
 > **Explication.**
 > - `each.key` : la clé de l'élément courant (`allow-https`). `each.value` : sa valeur, l'objet ; `each.value.priority` en lit un champ.
 > - `direction = "Inbound"` : la règle filtre le trafic **entrant**. `"*"` : n'importe quelle valeur.
@@ -651,7 +650,6 @@ resource "azurerm_network_security_group" "data" {
 
 **À écrire** : l'association de ce NSG à `snet-data`, nommée `data`, avec le même `count`. Pour son id, utilisez `azurerm_network_security_group.data[0].id`.
 
-> [!NOTE]
 > **Explication.**
 > - `condition ? a : b` vaut `a` si la condition est vraie, sinon `b`.
 > - Avec `count`, la ressource devient une **liste** : `[0]` désigne sa première (et seule) instance.
@@ -707,8 +705,12 @@ Protégez le NSG de `snet-app`, puis lancez `terraform destroy -var-file=dev.tfv
 
 Retirez ensuite ce bloc : le TP5 en a besoin.
 
+</details>
 
 ## TP5 : module réseau
+
+<details>
+<summary><b>Afficher l'énoncé du TP5</b></summary>
 
 **Objectif** : ranger le réseau dans un module, puis l'appeler deux fois. **Durée** : 50 minutes.
 **Dossier de travail** : `jour1/`
@@ -720,7 +722,6 @@ Votre `rg-<prénom>-dev` contient un VNet, deux sous-réseaux et un NSG, décrit
 
 C'est le TP le plus autonome de la journée : beaucoup d'étapes sont à écrire.
 
-> [!IMPORTANT]
 > **Avant de commencer** : dans `jour1/`, lancez `terraform state list`. La liste doit montrer les ressources du TP précédent.
 > Liste vide ? Vous n'êtes pas dans le bon dossier : revenez dans `jour1/` (`cd` depuis la racine du dépôt).
 
@@ -775,7 +776,6 @@ variable "subnets" {
 - `address_space`, de type `list(string)` ;
 - `nsg_rules` : **coupez** la variable `nsg_rules` de votre `variables.tf` (à la racine) et collez-la ici, avec son `default`.
 
-> [!NOTE]
 > **Explication.** Le module ne déclare ni bloc `terraform { }` ni `provider` : il utilise ceux du module racine.
 
 ### Étape 3 : déplacer le réseau dans le module
@@ -813,7 +813,6 @@ resource "azurerm_subnet" "this" {
   subnet_id                 = azurerm_subnet.this[...].id   # À COMPLÉTER : la clé "app", entre guillemets
 ```
 
-> [!NOTE]
 > **Explication.**
 > - `"this"` : le nom d'usage quand un module ne contient qu'une ressource de ce type.
 > - Avec `for_each`, `azurerm_subnet.this` est une collection : `["app"]` choisit une instance par sa clé.
@@ -832,7 +831,6 @@ output "subnet_ids" {
 }
 ```
 
-> [!NOTE]
 > **Explication.** `{ for k, v in collection : k => valeur }` construit une map : ici, le nom de chaque sous-réseau vers son id.
 
 ### Étape 5 : alléger la racine
@@ -864,7 +862,6 @@ module "network_dev" {
 
 **À écrire** : un second appel, `network_prod`, avec `prefix = "prod"`, `10.20.0.0/16`, et les sous-réseaux `10.20.1.0/24` et `10.20.2.0/24`.
 
-> [!NOTE]
 > **Explication.** `module "nom"` appelle un module. `source` dit où il se trouve (ici un dossier local) ; les autres arguments remplissent ses variables.
 
 ### Étape 7 : les sorties de la racine
@@ -888,7 +885,6 @@ output "subnet_ids" {
 }
 ```
 
-> [!NOTE]
 > **Explication.** `module.network_dev.vnet_id` lit un output du module : c'est la seule façon de récupérer une valeur de l'intérieur d'un module.
 
 ### Étape 8 : initialiser, planifier, appliquer
@@ -931,8 +927,12 @@ terraform apply -var-file=dev.tfvars
 
 **À écrire** : supprimez la variable `subnets` et calculez les CIDR dans le module. `cidrsubnet(var.address_space[0], 8, 1)` donne le premier `/24` du `/16`, `cidrsubnet(var.address_space[0], 8, 2)` le deuxième.
 
+</details>
 
 ## Bonus : une VM configurée par cloud-init
+
+<details>
+<summary><b>Afficher l'énoncé du bonus</b></summary>
 
 **Objectif** : déployer une machine virtuelle dont la configuration est générée par `templatefile`. **Durée** : 30 minutes.
 **Dossier de travail** : `jour1/bonus/`
@@ -1010,7 +1010,6 @@ resource "azurerm_network_interface" "vm" {
 }
 ```
 
-> [!NOTE]
 > **Explication.** `ip_configuration` est un **bloc imbriqué** : il relie la carte au sous-réseau. `"Dynamic"` : Azure choisit l'adresse privée.
 
 ### Étape 5 : une clé SSH
@@ -1023,7 +1022,6 @@ resource "tls_private_key" "vm" {
 }
 ```
 
-> [!NOTE]
 > **Explication.** La clé est générée par Terraform et stockée **en clair dans le state** : acceptable pour un TP, pas en production.
 
 ### Étape 6 : le script de démarrage
@@ -1056,7 +1054,6 @@ locals {
 }
 ```
 
-> [!NOTE]
 > **Explication.** `templatefile(fichier, valeurs)` lit le fichier et remplace chaque `${...}` par la valeur donnée. `path.module` : le dossier du code courant.
 
 ### Étape 7 : la VM
@@ -1093,7 +1090,6 @@ resource "azurerm_linux_virtual_machine" "vm" {
 }
 ```
 
-> [!NOTE]
 > **Explication.**
 > - Pas d'argument `zone` : la création ne dépend pas de la capacité d'une zone précise.
 > - `custom_data` : le script passé à la VM, encodé en base64.
@@ -1156,3 +1152,5 @@ terraform destroy -var-file=dev.tfvars
 Ajoutez une IP publique et une règle NSG qui autorise SSH depuis votre seule adresse IP, connectez-vous
 (`terraform output -raw ssh_private_key > cle && chmod 600 cle`, puis `ssh -i cle azureuser@<ip>`), puis retirez l'IP publique.
 Sous Windows, faites cette étape dans Git Bash : PowerShell n'applique pas `chmod`.
+
+</details>
