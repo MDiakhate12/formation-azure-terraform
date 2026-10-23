@@ -5,12 +5,32 @@ Bloqué ? La solution de chaque TP est publiée juste après sa correction : `gi
 
 ## Avant de commencer
 
+### macOS, Linux, Git Bash
+
 ```bash
 az login --tenant <tenant>
 export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+echo $ARM_SUBSCRIPTION_ID
 ```
 
-Sous Windows PowerShell : `$env:ARM_SUBSCRIPTION_ID = (az account show --query id -o tsv)`.
+### Windows PowerShell
+
+```powershell
+az login --tenant <tenant>
+$env:ARM_SUBSCRIPTION_ID = (az account show --query id -o tsv)
+$env:ARM_SUBSCRIPTION_ID
+```
+
+La dernière ligne doit afficher un identifiant (`xxxxxxxx-xxxx-...`).
+
+> **À refaire dans chaque nouveau terminal.** La variable n'existe que dans le terminal où vous l'avez définie.
+> Nouvel onglet, nouvelle fenêtre, terminal de VS Code : relancez la ligne `export` (ou `$env:...`). `az login` n'est pas à refaire.
+> Si vous l'oubliez, `terraform plan` échoue avec : `subscription_id is a required provider property`.
+
+Pour ne plus y penser, ajoutez-la au démarrage de vos terminaux (à retirer après la formation) :
+
+- macOS (zsh) : `echo 'export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)' >> ~/.zshrc`
+- Windows : `setx ARM_SUBSCRIPTION_ID (az account show --query id -o tsv)`, valable pour les **prochains** terminaux uniquement.
 
 Rappels : préfixe par votre prénom, région `swedencentral`, taille `Standard_D2as_v6`, **aucune zone** sur les nœuds.
 

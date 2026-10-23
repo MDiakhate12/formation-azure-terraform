@@ -12,9 +12,36 @@ Copiez les trois dossiers dans votre espace de travail (`~/formation/jour3`) et 
 
 ## Démarrage : relancer le cluster
 
+#### macOS, Linux, Git Bash
+
 ```bash
 az login --tenant <tenant>
 export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+echo $ARM_SUBSCRIPTION_ID
+```
+
+#### Windows PowerShell
+
+```powershell
+az login --tenant <tenant>
+$env:ARM_SUBSCRIPTION_ID = (az account show --query id -o tsv)
+$env:ARM_SUBSCRIPTION_ID
+```
+
+La dernière ligne doit afficher un identifiant (`xxxxxxxx-xxxx-...`).
+
+> **À refaire dans chaque nouveau terminal.** La variable n'existe que dans le terminal où vous l'avez définie.
+> Nouvel onglet, nouvelle fenêtre, terminal de VS Code : relancez la ligne `export` (ou `$env:...`). `az login` n'est pas à refaire.
+> Si vous l'oubliez, `terraform plan` échoue avec : `subscription_id is a required provider property`.
+
+Pour ne plus y penser, ajoutez-la au démarrage de vos terminaux (à retirer après la formation) :
+
+- macOS (zsh) : `echo 'export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)' >> ~/.zshrc`
+- Windows : `setx ARM_SUBSCRIPTION_ID (az account show --query id -o tsv)`, valable pour les **prochains** terminaux uniquement.
+
+#### Puis le cluster
+
+```bash
 cd socle
 terraform init
 terraform apply -var-file=dev.tfvars      # 5 à 10 minutes
@@ -22,7 +49,7 @@ terraform output -raw get_credentials    # copiez-collez la commande affichée :
 kubectl get nodes
 ```
 
-Sous Windows PowerShell : `$env:ARM_SUBSCRIPTION_ID = (az account show --query id -o tsv)`.
+Vous travaillerez ensuite dans `app` et `pannes` : si vous ouvrez un nouveau terminal pour ces dossiers, refaites l'export.
 
 | TP | Sujet | Durée |
 |---|---|---|

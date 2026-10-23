@@ -4,7 +4,7 @@
 
 ## 1. Se connecter
 
-Voir le [README](README.md) : `az login --tenant <tenant>`, puis `export ARM_SUBSCRIPTION_ID=...`.
+Voir le [README](README.md) : `az login --tenant <tenant>`, puis la variable `ARM_SUBSCRIPTION_ID` (commande différente sous Windows, à refaire dans chaque nouveau terminal).
 
 ## 2. Déclarer Terraform et le provider
 
