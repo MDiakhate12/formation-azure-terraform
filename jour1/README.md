@@ -7,6 +7,36 @@ Travaillez dans **votre propre dossier** (par exemple `~/formation/jour1`), en d
 
 Bloqué ? La solution de chaque TP est publiée juste après sa correction : `git pull`, puis copiez le contenu de `jour1/tpN/solution` dans votre dossier et repartez de là.
 
+## Lire les énoncés
+
+Chaque étape d'un TP commence par une phrase qui dit **pourquoi** on la fait, puis un ou plusieurs repères :
+
+| Repère | Ce que vous faites |
+|---|---|
+| **À copier** | Recopiez le bloc tel quel dans le fichier indiqué. C'est du code déjà prêt (souvent un prérequis). |
+| **À compléter** | Recopiez le bloc, puis remplacez chaque `...` : le commentaire `# À COMPLÉTER : ...` sur la même ligne dit quoi mettre. |
+| **À écrire** | Écrivez le bloc vous-même, à partir de la consigne et du modèle des étapes précédentes. |
+| **À lancer** | Tapez les commandes dans le terminal, dans votre dossier de travail, une par une. La ligne `#` au-dessus de chaque commande dit ce qu'elle fait. |
+| **Vérifier** | Ce que vous devez obtenir. Si ce n'est pas le cas, arrêtez-vous et demandez. |
+
+> [!NOTE]
+> **Explication.** Les encadrés comme celui-ci expliquent le code ou les commandes. Ils sont à lire : il n'y a rien à faire.
+
+Les TP deviennent plus autonomes au fil de la journée : beaucoup de code à copier au TP1, de plus en plus à compléter puis à écrire ensuite.
+
+### La notation `<...>`
+
+Tout ce qui est entre chevrons `< >` est à **remplacer entièrement, chevrons compris**, par votre propre valeur.
+
+| Dans l'énoncé | Ce que vous écrivez (exemple pour Alexandre) |
+|---|---|
+| `rg-<prénom>-tf` | `rg-alexandre-tf` |
+| `prenom = "<prénom>"` | `prenom = "alexandre"` (les guillemets restent) |
+| `az login --tenant <tenant>` | `az login --tenant 1a2b3c4d-...` (l'identifiant collé par le formateur dans le chat) |
+
+Votre prénom s'écrit **en minuscules, sans accent, sans espace ni tiret** : Hélène devient `helene`, Jean-Marc devient `jeanmarc`.
+Il sert à reconnaître vos ressources dans la subscription partagée : deux participants ne doivent jamais avoir le même nom.
+
 ## Avant de commencer
 
 Le formateur colle dans le chat un bloc prêt à l'emploi : copiez-le tel quel. Sinon, remplacez `<tenant>` par l'id du tenant qu'il vous donne.

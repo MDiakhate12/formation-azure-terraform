@@ -1,47 +1,85 @@
 # Bonus : une VM configurée par cloud-init
 
 **Objectif** : déployer une machine virtuelle dont la configuration est générée par `templatefile`. **Durée** : 30 minutes.
-Ce TP est autonome : il crée son propre resource group (`rg-<prénom>-vm`), son VNet et son sous-réseau.
+
+## Où on en est, où on va
+
+Ce bonus est **autonome** : il ne touche pas au réseau du fil rouge. Vous créez un resource group `rg-<prénom>-vm`, un petit réseau, puis une VM Linux qui installe un serveur web toute seule à son premier démarrage.
 
 La VM consomme 2 vCPU du quota partagé : **détruisez-la à la fin**.
 
-## 1. Les providers
+## Étape 1 : un dossier à part
 
-Dans `versions.tf`, ajoutez `hashicorp/tls` à côté d'`azurerm` :
+Ce code a son propre state : il ne doit pas se mélanger à celui du fil rouge.
+
+**À lancer** :
+
+```bash
+# Nouveau dossier, à côté de celui du fil rouge
+mkdir -p ~/formation/jour1-bonus
+cd ~/formation/jour1-bonus
+```
+
+**À copier** depuis votre dossier du fil rouge : `variables.tf` (gardez seulement `prenom` et `location`) et `dev.tfvars` (seulement la ligne `prenom`).
+
+## Étape 2 : les providers
+
+`tls` est un provider qui fabrique des clés et des certificats, sans appeler aucun cloud.
+
+**À copier** dans `versions.tf` :
 
 ```hcl
+terraform {
+  required_version = ">= 1.15.0"
+
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 5.0"
+    }
     tls = {
       source  = "hashicorp/tls"
       version = "~> 4.0"
     }
+  }
+}
+
+provider "azurerm" {
+  features {}
+}
 ```
 
-- `tls` : un provider qui fabrique des clés et des certificats, sans appeler aucun cloud.
+## Étape 3 : le resource group et le réseau
 
-## 2. Le réseau
+**À écrire** dans `main.tf`, en reprenant le code du TP3 :
+- un resource group `"rg-${var.prenom}-vm"` ;
+- un VNet `"vnet-${var.prenom}-vm"` en `10.0.0.0/16` (`address_space = ["10.0.0.0/16"]`, sans variable) ;
+- un sous-réseau `app` nommé `snet-app`, en `10.0.1.0/24`.
 
-Un resource group, un VNet `10.0.0.0/16` et un sous-réseau `snet-app` `10.0.1.0/24` : reprenez le code du TP3.
+## Étape 4 : une carte réseau sans IP publique
 
-## 3. Une carte réseau sans IP publique
+**À compléter** à la suite :
 
 ```hcl
 resource "azurerm_network_interface" "vm" {
-  name                = "nic-<prénom>"
+  name                = "nic-${var.prenom}"
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
 
   ip_configuration {
     name                          = "interne"
-    subnet_id                     = azurerm_subnet.app.id
+    subnet_id                     = ...          # À COMPLÉTER : l'id du sous-réseau de l'étape 3
     private_ip_address_allocation = "Dynamic"
   }
 }
 ```
 
-- `ip_configuration` : un **bloc imbriqué**. Il relie la carte au sous-réseau.
-- `"Dynamic"` : Azure choisit l'adresse privée dans le sous-réseau.
+> [!NOTE]
+> **Explication.** `ip_configuration` est un **bloc imbriqué** : il relie la carte au sous-réseau. `"Dynamic"` : Azure choisit l'adresse privée.
 
-## 4. Une clé SSH
+## Étape 5 : une clé SSH
+
+**À copier** à la suite :
 
 ```hcl
 resource "tls_private_key" "vm" {
@@ -49,11 +87,14 @@ resource "tls_private_key" "vm" {
 }
 ```
 
-- La clé est générée par Terraform et stockée **en clair dans le state** : acceptable pour un TP, pas en production.
+> [!NOTE]
+> **Explication.** La clé est générée par Terraform et stockée **en clair dans le state** : acceptable pour un TP, pas en production.
 
-## 5. Le script de démarrage
+## Étape 6 : le script de démarrage
 
-Créez `cloud-init.tftpl` :
+`cloud-init` est le standard qui configure une VM Linux à son premier démarrage.
+
+**À copier** dans un nouveau fichier `cloud-init.tftpl` :
 
 ```yaml
 #cloud-config
@@ -65,39 +106,41 @@ write_files:
   - path: /var/www/html/index.html
     content: |
       <h1>Bonjour ${prenom}</h1>
+      <p>Cette page a été écrite par cloud-init sur ${hostname}.</p>
 ```
 
-Et dans `main.tf` :
+**À compléter** en haut de `main.tf` :
 
 ```hcl
 locals {
   cloud_init = templatefile("${path.module}/cloud-init.tftpl", {
     hostname = "vm-${var.prenom}"
-    prenom   = var.prenom
+    prenom   = ...                 # À COMPLÉTER : la variable prenom
   })
 }
 ```
 
-- `cloud-init` : le standard qui configure une VM Linux à son premier démarrage.
-- `templatefile(fichier, valeurs)` : lit un fichier et remplace les `${...}` par les valeurs données.
-- `path.module` : le dossier du code courant.
+> [!NOTE]
+> **Explication.** `templatefile(fichier, valeurs)` lit le fichier et remplace chaque `${...}` par la valeur donnée. `path.module` : le dossier du code courant.
 
-## 6. La VM
+## Étape 7 : la VM
+
+**À compléter** à la fin de `main.tf` :
 
 ```hcl
 resource "azurerm_linux_virtual_machine" "vm" {
   name                  = "vm-${var.prenom}"
   location              = azurerm_resource_group.main.location
   resource_group_name   = azurerm_resource_group.main.name
-  size                  = "Standard_D2as_v6"
+  size                  = "..."                          # À COMPLÉTER : la seule taille autorisée, Standard_D2as_v6
   admin_username        = "azureuser"
-  network_interface_ids = [azurerm_network_interface.vm.id]
+  network_interface_ids = [...]                          # À COMPLÉTER : l'id de la carte réseau, dans une liste
   custom_data           = base64encode(local.cloud_init)
   disk_controller_type  = "NVMe"
 
   admin_ssh_key {
     username   = "azureuser"
-    public_key = tls_private_key.vm.public_key_openssh
+    public_key = ...                                     # À COMPLÉTER : l'attribut public_key_openssh de la clé
   }
 
   os_disk {
@@ -114,24 +157,54 @@ resource "azurerm_linux_virtual_machine" "vm" {
 }
 ```
 
-- `size` : la taille de la VM, ici 2 vCPU et 8 Go. Ne mettez **pas** d'argument `zone`.
-- `custom_data` : le script passé à la VM, encodé en base64 (`base64encode`).
-- `disk_controller_type = "NVMe"` : obligatoire, cette taille n'accepte que des disques NVMe.
-- `admin_ssh_key` : la clé publique autorisée à se connecter. Aucun mot de passe.
-- `source_image_reference` : l'image du système (Ubuntu 24.04).
+> [!NOTE]
+> **Explication.**
+> - Pas d'argument `zone` : la création ne dépend pas de la capacité d'une zone précise.
+> - `custom_data` : le script passé à la VM, encodé en base64.
+> - `disk_controller_type = "NVMe"` : obligatoire, cette taille n'accepte que des disques NVMe.
+> - `admin_ssh_key` : la clé publique autorisée à se connecter. Aucun mot de passe.
+> - `source_image_reference` : l'image du système, ici Ubuntu 24.04.
 
-## 7. Retrouver la VM dans le portail
+## Étape 8 : les sorties, puis le déploiement
+
+**À écrire** dans `outputs.tf` : un output `private_ip` avec l'adresse privée de la carte réseau (attribut `private_ip_address`).
+
+**À copier** à la suite :
+
+```hcl
+output "ssh_private_key" {
+  value     = tls_private_key.vm.private_key_openssh
+  sensitive = true
+}
+```
+
+**À lancer** :
+
+```bash
+# Télécharge azurerm et tls
+terraform init
+terraform plan -var-file=dev.tfvars
+# Crée la VM : 2 à 3 minutes (tapez yes)
+terraform apply -var-file=dev.tfvars
+```
+
+**Vérifier** : le plan annonce `6 to add`.
+
+## Étape 9 : retrouver la VM dans le portail
 
 1. Ouvrez `rg-<prénom>-vm` : la VM, sa carte réseau, son disque (`vm-<prénom>_OsDisk_...`), le VNet. Azure a créé le disque pour vous.
 2. Ouvrez `vm-<prénom>` : **Overview** (Vue d'ensemble) affiche la taille `Standard_D2as_v6` et l'adresse IP privée. Comparez avec `terraform output private_ip`.
 3. Menu **Operations > Run command** (Opérations > Exécuter la commande), choisissez **RunShellScript**, tapez `curl -s localhost` et lancez.
    Après une à deux minutes, la sortie affiche votre page : cloud-init a installé nginx.
 
-## 8. Détruire
+## Étape 10 : détruire
 
-La VM coûte tant qu'elle existe :
+La VM coûte tant qu'elle existe.
+
+**À lancer** :
 
 ```bash
+# Supprime la VM et tout le reste de ce dossier (tapez yes)
 terraform destroy -var-file=dev.tfvars
 ```
 

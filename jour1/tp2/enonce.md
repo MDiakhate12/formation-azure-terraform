@@ -1,10 +1,19 @@
 # TP2 : variabiliser et nommer
 
-**Objectif** : remplacer les valeurs en dur par des variables, des locals et des outputs. **Durée** : 30 minutes.
+**Objectif** : remplacer les valeurs écrites en dur par des variables, des locals et des outputs. **Durée** : 30 minutes.
 
-## 1. Déclarer les variables
+## Où on en est, où on va
 
-Créez `variables.tf` avec trois variables : `prenom`, `location` et `environment`.
+Vous avez un resource group `rg-<prénom>-tf`, mais son nom et sa région sont écrits en dur dans `main.tf`.
+À la fin de ce TP, le même code servira à plusieurs environnements : le nom sera calculé à partir de votre prénom et de l'environnement (`rg-<prénom>-dev`).
+
+Vous continuez dans le même dossier qu'au TP1 (`~/formation/jour1`).
+
+## Étape 1 : déclarer les variables
+
+Une variable est une **entrée** du code : sa valeur est donnée au lancement, pas écrite dans le code.
+
+**À copier** dans un nouveau fichier `variables.tf` :
 
 ```hcl
 variable "prenom" {
@@ -29,71 +38,111 @@ variable "environment" {
 }
 ```
 
-À vous : `location`, de type `string`, avec `swedencentral` par défaut.
+**À compléter** dans le même fichier, à la suite :
 
-- `variable` : une entrée du code, dont la valeur est donnée au lancement.
-- `type` : le type attendu (`string`, `number`, `bool`, `list(...)`, `map(...)`).
-- `default` : la valeur si personne n'en donne. Sans `default`, Terraform la demande.
-- `validation` : une règle vérifiée avant le plan. `condition` doit être vraie, sinon `error_message` s'affiche.
-- `contains(liste, valeur)` : vrai si la valeur est dans la liste.
-- `regex(motif, texte)` : échoue si le texte ne respecte pas le motif. `can(...)` transforme cet échec en `false`.
-  Ici : 2 à 12 lettres minuscules, car le prénom finira dans des noms de storage account.
+```hcl
+variable "location" {
+  type        = ...           # À COMPLÉTER : le même type que les deux autres variables
+  description = "Région Azure"
+  default     = "..."         # À COMPLÉTER : la région de la formation
+}
+```
 
-## 2. Calculer un préfixe et nommer
+> [!NOTE]
+> **Explication.**
+> - `type` : le type attendu (`string`, `number`, `bool`, `list(...)`, `map(...)`).
+> - `default` : la valeur utilisée si personne n'en donne. `prenom` n'en a pas : Terraform devra la recevoir.
+> - `validation` : une règle vérifiée avant le plan. Si `condition` est fausse, `error_message` s'affiche.
+> - `contains(liste, valeur)` : vrai si la valeur est dans la liste.
+> - `regex(motif, texte)` échoue si le texte ne respecte pas le motif, et `can(...)` transforme cet échec en `false`. Ici : 2 à 12 lettres minuscules.
 
-Dans `main.tf` :
+## Étape 2 : calculer le nom, utiliser les variables
+
+Un local est une valeur **calculée** une fois et réutilisée partout.
+
+**À compléter** : remplacez tout le contenu de `main.tf` par :
 
 ```hcl
 locals {
-  name_prefix = "${var.prenom}-${var.environment}"
+  name_prefix = "${var.prenom}-${...}"   # À COMPLÉTER : la variable de l'environnement
 }
 
 resource "azurerm_resource_group" "main" {
   name     = "rg-${local.name_prefix}"
-  location = var.location
+  location = ...                         # À COMPLÉTER : la variable de la région, sans guillemets
 }
 ```
 
-- `locals` : des valeurs calculées une fois, réutilisées partout.
-- `var.x` : lit une variable. `local.x` : lit un local.
-- `"${...}"` : insère une valeur dans une chaîne (interpolation).
+> [!NOTE]
+> **Explication.**
+> - `var.x` lit une variable, `local.x` lit un local.
+> - `"${...}"` insère une valeur dans une chaîne : avec `alexandre` et `dev`, `name_prefix` vaut `alexandre-dev`, et le nom devient `rg-alexandre-dev`.
+> - Une valeur seule (`var.location`) s'écrit **sans** guillemets : avec des guillemets, ce serait le texte « var.location ».
 
-## 3. Exposer un résultat
+## Étape 3 : exposer un résultat
 
-Créez `outputs.tf` :
+Un output affiche une valeur à la fin de l'`apply` : c'est la « sortie » du code.
+
+**À compléter** dans un nouveau fichier `outputs.tf` :
 
 ```hcl
 output "resource_group_id" {
-  value = azurerm_resource_group.main.id
+  value = ...   # À COMPLÉTER : l'id du resource group, sous la forme type.nom.attribut
 }
 ```
 
-- `output` : une valeur affichée à la fin de l'`apply` (et lisible avec `terraform output`).
-- `azurerm_resource_group.main.id` : un attribut connu seulement après la création.
+> [!NOTE]
+> **Explication.** `azurerm_resource_group.main.id` se lit : type de la ressource, puis son nom dans le code, puis l'attribut. L'`id` n'est connu qu'une fois la ressource créée.
 
-## 4. Un fichier de valeurs par environnement
+## Étape 4 : un fichier de valeurs
 
-Créez `dev.tfvars` :
+Les valeurs des variables se rangent dans un fichier `.tfvars`, un par environnement.
+
+**À compléter** dans un nouveau fichier `dev.tfvars` :
 
 ```hcl
-prenom      = "<prénom>"
+prenom      = "<prénom>"   # À COMPLÉTER : votre prénom, par exemple "alexandre"
 environment = "dev"
 ```
 
+> [!NOTE]
+> **Explication.** Un `.tfvars` ne contient que des valeurs, pas de code. Terraform ne le lit que si vous le lui indiquez avec `-var-file` (sauf s'il s'appelle exactement `terraform.tfvars`).
+
+## Étape 5 : planifier avec ce fichier
+
+La première commande lit les valeurs de `dev.tfvars`. La seconde donne en plus une valeur directement dans la ligne de commande, pour voir laquelle l'emporte.
+
+**À lancer** :
+
 ```bash
+# Plan avec les valeurs de dev.tfvars
 terraform plan -var-file=dev.tfvars
+# Même plan, mais l'environnement est forcé à prod dans la commande
 terraform plan -var-file=dev.tfvars -var="environment=prod"
 ```
 
-- `-var-file` : charge un fichier de valeurs. `-var` : donne une valeur en ligne de commande.
+**Vérifier** :
+- Le premier plan affiche `-/+` et `forces replacement` : le nom passe de `rg-<prénom>-tf` à `rg-<prénom>-dev`.
+- Le second affiche `rg-<prénom>-prod`.
 
-## 5. Vérifier dans le portail
+## Étape 6 : appliquer et vérifier dans le portail
 
-Lancez `terraform apply -var-file=dev.tfvars`, puis :
+**À lancer** :
+
+```bash
+# Applique avec les valeurs de dev.tfvars (tapez yes)
+terraform apply -var-file=dev.tfvars
+# Réaffiche les outputs à tout moment
+terraform output resource_group_id
+```
+
+Dans le portail :
 
 1. **Resource groups** (Groupes de ressources) : `rg-<prénom>-tf` a disparu, `rg-<prénom>-dev` l'a remplacé.
 2. Ouvrez `rg-<prénom>-dev`, puis **JSON View** (Vue JSON), en haut à droite de la vue d'ensemble.
-3. Comparez le champ `id` avec l'output : `terraform output resource_group_id`. C'est la même valeur.
+3. Le champ `id` est le même que celui affiché par `terraform output`.
+
+À partir de maintenant, ajoutez toujours `-var-file=dev.tfvars` à `plan` et `apply`.
 
 ## Documentation
 
@@ -109,4 +158,9 @@ Lancez `terraform apply -var-file=dev.tfvars`, puis :
 
 ## Pour aller plus loin
 
-Faites échouer la validation volontairement avec `-var="environment=test"` et lisez le message.
+Faites échouer la validation volontairement, puis lisez le message :
+
+```bash
+# environment=test n'est pas dans la liste autorisée
+terraform plan -var-file=dev.tfvars -var="environment=test"
+```

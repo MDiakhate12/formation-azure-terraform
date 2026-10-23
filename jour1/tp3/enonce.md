@@ -2,80 +2,108 @@
 
 **Objectif** : construire le socle réseau du fil rouge. **Durée** : 40 minutes.
 
-## 1. Une variable pour la plage d'adresses
+## Où on en est, où on va
 
-Dans `variables.tf` :
+Vous avez un resource group `rg-<prénom>-dev`, nommé par variables.
+À la fin de ce TP, il contiendra un réseau virtuel (VNet) et deux sous-réseaux : `snet-app` pour les applications, `snet-data` pour les données.
+Le TP4 les protégera, le TP5 en fera un module réutilisable.
+
+Vous continuez dans `~/formation/jour1`.
+
+## Étape 1 : une variable pour la plage d'adresses
+
+La plage d'adresses du VNet devient une variable, pour pouvoir la changer sans toucher au code.
+
+**À compléter** à la fin de `variables.tf` :
 
 ```hcl
 variable "address_space" {
-  type        = list(string)
+  type        = list(...)               # À COMPLÉTER : une liste de chaînes de caractères
   description = "Plage d'adresses du VNet"
-  default     = ["10.0.0.0/16"]
+  default     = ["..."]                 # À COMPLÉTER : 10.0.0.0/16
 }
 ```
 
-- `list(string)` : une liste de chaînes. Un VNet peut avoir plusieurs plages.
-- `10.0.0.0/16` : une plage CIDR de 65 536 adresses (de `10.0.0.0` à `10.0.255.255`).
+> [!NOTE]
+> **Explication.**
+> - `list(string)` : une liste de chaînes. Un VNet peut avoir plusieurs plages, d'où la liste.
+> - `10.0.0.0/16` : une plage CIDR de 65 536 adresses (de `10.0.0.0` à `10.0.255.255`). Le `/16` dit que les 16 premiers bits sont fixes.
 
-## 2. Le VNet
+## Étape 2 : le VNet
 
-Créez `network.tf` :
+**À compléter** dans un nouveau fichier `network.tf` :
 
 ```hcl
 resource "azurerm_virtual_network" "main" {
-  name                = "vnet-${local.name_prefix}"
+  name                = "vnet-${...}"                      # À COMPLÉTER : le local du TP2, comme pour le resource group
   location            = azurerm_resource_group.main.location
-  resource_group_name = azurerm_resource_group.main.name
-  address_space       = var.address_space
+  resource_group_name = ...                                # À COMPLÉTER : le nom du resource group, sur le modèle de la ligne du dessus
+  address_space       = ...                                # À COMPLÉTER : la variable de l'étape 1
 }
 ```
 
-- `azurerm_resource_group.main.name` : une **référence** à une autre ressource. Pas de nom recopié à la main.
-- Une référence crée aussi une **dépendance** : Terraform créera le resource group avant le VNet.
+> [!NOTE]
+> **Explication.**
+> - `azurerm_resource_group.main.location` est une **référence** : on lit la région du resource group au lieu de la recopier.
+> - Une référence crée aussi une **dépendance** : Terraform sait qu'il doit créer le resource group avant le VNet.
 
-## 3. Les deux sous-réseaux
+## Étape 3 : les deux sous-réseaux
+
+**À compléter** à la suite, dans `network.tf` :
 
 ```hcl
 resource "azurerm_subnet" "app" {
   name                 = "snet-app"
   resource_group_name  = azurerm_resource_group.main.name
-  virtual_network_name = azurerm_virtual_network.main.name
+  virtual_network_name = ...              # À COMPLÉTER : le nom du VNet de l'étape 2 (référence)
   address_prefixes     = ["10.0.1.0/24"]
 }
 ```
 
-À vous : `snet-data`, en `10.0.2.0/24`.
+**À écrire** : le second sous-réseau, `azurerm_subnet` nommé `data` dans le code, `snet-data` dans Azure, en `10.0.2.0/24`. Même structure que `app`.
 
-- `address_prefixes` : la plage du sous-réseau, incluse dans celle du VNet. Un `/24` fait 256 adresses (Azure en réserve 5).
-- Deux sous-réseaux d'un même VNet ne doivent pas se chevaucher.
+> [!NOTE]
+> **Explication.**
+> - `address_prefixes` : la plage du sous-réseau, incluse dans celle du VNet. Un `/24` fait 256 adresses, dont 5 réservées par Azure.
+> - Deux sous-réseaux d'un même VNet ne doivent pas se chevaucher : `10.0.1.0/24` et `10.0.2.0/24` sont bien séparés.
 
-## 4. Exposer les identifiants
+## Étape 4 : exposer les identifiants
 
-Dans `outputs.tf` :
+**À compléter** à la fin de `outputs.tf` :
 
 ```hcl
 output "vnet_id" {
-  value = azurerm_virtual_network.main.id
+  value = ...                       # À COMPLÉTER : l'id du VNet
 }
 
 output "subnet_ids" {
   value = {
     app  = azurerm_subnet.app.id
-    data = azurerm_subnet.data.id
+    data = ...                      # À COMPLÉTER : l'id du sous-réseau data
   }
 }
 ```
 
-- Un output peut renvoyer une **map** : plusieurs valeurs nommées en un seul output.
+> [!NOTE]
+> **Explication.** Un output peut renvoyer une **map** `{ clé = valeur }` : plusieurs valeurs nommées en un seul output.
 
-## 5. Planifier puis appliquer
+## Étape 5 : planifier, puis appliquer
+
+**À lancer** :
 
 ```bash
+# Remet le code en forme, puis vérifie la syntaxe
+terraform fmt
+terraform validate
+# Montre ce qui va être créé : lisez l'ordre des ressources
 terraform plan -var-file=dev.tfvars
+# Crée le réseau (tapez yes)
 terraform apply -var-file=dev.tfvars
 ```
 
-## 6. Retrouver le réseau dans le portail
+**Vérifier** : le plan annonce `3 to add` (le VNet et les deux sous-réseaux). Le resource group existe déjà : il n'est pas recréé.
+
+## Étape 6 : retrouver le réseau dans le portail
 
 1. Ouvrez `rg-<prénom>-dev` : **Overview** (Vue d'ensemble) liste maintenant `vnet-<prénom>-dev`.
 2. Ouvrez le VNet, menu **Settings > Address space** (Paramètres > Espace d'adressage) : `10.0.0.0/16`.
@@ -94,4 +122,4 @@ terraform apply -var-file=dev.tfvars
 
 ## Pour aller plus loin
 
-Ajoutez un troisième sous-réseau. Quel CIDR choisissez-vous, et pourquoi ?
+**À écrire** : un troisième sous-réseau. Quel CIDR choisissez-vous, et pourquoi ?
