@@ -2,7 +2,7 @@
 
 **Objectif** : faire tourner `fmt`, `init` et `validate` automatiquement sur une pull request. **Durée** : 30 minutes.
 
-Il vous faut un dépôt GitHub à vous, avec un peu de Terraform dedans (par exemple votre TP2 d'hier, ou `jour1/solution/tp2`).
+Il vous faut un dépôt GitHub à vous, avec un peu de Terraform dedans (par exemple votre TP2 d'hier, ou `jour1/tp2/solution`).
 
 ## Étapes
 
@@ -21,4 +21,4 @@ Il vous faut un dépôt GitHub à vous, avec un peu de Terraform dedans (par exe
 
 ## Pour aller plus loin
 
-Ajoutez un job `plan` (modèle dans `jour2/enonce/plan-job.yml`) avec les quatre secrets `ARM_*` fournis par le formateur.
+Ajoutez un job `plan` (modèle dans `jour2/tp4/plan-job.yml`) avec les quatre secrets `ARM_*` fournis par le formateur.

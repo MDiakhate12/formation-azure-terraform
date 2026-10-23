@@ -1,6 +1,7 @@
-# Jour 3 : énoncés
+# Jour 3
 
 Le jour 3 part de code fourni : rien ne dépend de vos TP d'hier.
+Les consignes sont dans `tpN/enonce.md`, les solutions dans `tpN/solution/` après chaque correction.
 
 | Dossier | Contenu |
 |---|---|
@@ -53,12 +54,12 @@ Vous travaillerez ensuite dans `app` et `pannes` : si vous ouvrez un nouveau ter
 
 | TP | Sujet | Durée |
 |---|---|---|
-| [TP1](tp1.md) | Brancher Terraform sur le cluster | 30 min |
-| [TP2](tp2.md) | Mon application en ligne | 30 min |
-| [TP3](tp3.md) | Exploiter le cluster | 40 min |
-| [TP4](tp4.md) | Pannes volontaires | 30 min |
-| [TP5](tp5.md) | Démonstration finale | 30 min |
-| [Bonus](../bonus/README.md) | Déployer un chart Helm | 20 min |
+| [TP1](tp1/enonce.md) | Brancher Terraform sur le cluster | 30 min |
+| [TP2](tp2/enonce.md) | Mon application en ligne | 30 min |
+| [TP3](tp3/enonce.md) | Exploiter le cluster | 40 min |
+| [TP4](tp4/enonce.md) | Pannes volontaires | 30 min |
+| [TP5](tp5/enonce.md) | Démonstration finale | 30 min |
+| [Bonus](bonus/enonce.md) | Déployer un chart Helm | 20 min |
 
 ## Avant de partir
 

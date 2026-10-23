@@ -23,4 +23,4 @@
 
 ## Pour aller plus loin
 
-Ajoutez un pool `user` avec `azurerm_kubernetes_cluster_node_pool` (modèle dans `jour2/enonce/node-pool.tf.bonus`). Il double vos vCPU : détruisez-le vite.
+Ajoutez un pool `user` avec `azurerm_kubernetes_cluster_node_pool` (modèle dans `jour2/tp5/node-pool.tf.bonus`). Il double vos vCPU : détruisez-le vite.

@@ -18,8 +18,10 @@ Chaque jour est autonome : le code du jour N+1 ne dépend pas de votre travail d
 
 | Dossier | Contenu |
 |---|---|
-| `jourN/enonce/` | Les consignes de chaque TP, à suivre dans votre propre dossier de travail |
-| `jourN/solution/` | Vide au départ : chaque solution est publiée juste après sa correction (`git pull`) |
-| `jourN/bonus/` | Un TP supplémentaire pour les plus rapides |
+| `jourN/README.md` | Le déroulé du jour : connexion, règles, liste des TP |
+| `jourN/tpX/enonce.md` | Les consignes du TP |
+| `jourN/tpX/solution/` | Vide au départ : la solution est publiée juste après la correction (`git pull`) |
+| `jourN/bonus/` | Un TP supplémentaire pour les plus rapides (`enonce.md`, puis `solution/`) |
+| `jourN/corrige.md` | Les réponses aux questions, publiées en fin de journée |
 | `jour3/socle`, `jour3/app`, `jour3/pannes` | Le code fourni du jour 3 |
 | `docs/` | Les supports de cours publiés |

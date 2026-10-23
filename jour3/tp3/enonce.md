@@ -19,5 +19,5 @@ Toutes les modifications se font dans `jour3/socle/aks.tf`. **Lisez chaque plan 
 
 ## Pour aller plus loin
 
-Ajoutez un pool `apps` avec le label `role = "apps"` (modèle dans `jour3/enonce/node-pool.tf.bonus`),
+Ajoutez un pool `apps` avec le label `role = "apps"` (modèle dans `jour3/tp3/node-pool.tf.bonus`),
 puis passez `node_selector = { role = "apps" }` au module : sur quel nœud vont les pods ? Détruisez le pool ensuite (quota).

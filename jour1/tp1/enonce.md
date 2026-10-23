@@ -4,7 +4,7 @@
 
 ## 1. Se connecter
 
-Voir le [README](README.md) : `az login --tenant <tenant>`, puis la variable `ARM_SUBSCRIPTION_ID` (commande différente sous Windows, à refaire dans chaque nouveau terminal).
+Voir le [README](../README.md) : `az login --tenant <tenant>`, puis la variable `ARM_SUBSCRIPTION_ID` (commande différente sous Windows, à refaire dans chaque nouveau terminal).
 
 ## 2. Déclarer Terraform et le provider
 
@@ -59,7 +59,7 @@ terraform apply      # applique, après votre "yes"
 
 ## 5. Retrouver le resource group dans le portail
 
-1. Ouvrez [portal.azure.com](https://portal.azure.com), dans le tenant de la formation (voir le [README](README.md)).
+1. Ouvrez [portal.azure.com](https://portal.azure.com), dans le tenant de la formation (voir le [README](../README.md)).
 2. Barre de recherche en haut : tapez **Resource groups** (Groupes de ressources), ouvrez le service.
 3. Filtrez sur votre prénom : `rg-<prénom>-tf` apparaît, en **Sweden Central**.
 4. Ouvrez-le : **Overview** (Vue d'ensemble) est vide, c'est normal, il ne contient encore rien.

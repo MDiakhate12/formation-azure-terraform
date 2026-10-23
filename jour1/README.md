@@ -1,9 +1,11 @@
-# Jour 1 : énoncés
+# Jour 1
+
+Chaque TP a son dossier : `tpN/enonce.md` pour les consignes, `tpN/solution/` pour la solution, publiée après la correction.
 
 Un fil rouge sur la journée : un resource group, puis un réseau, puis un module réutilisable.
 Travaillez dans **votre propre dossier** (par exemple `~/formation/jour1`), en dehors du clone du dépôt, et faites-le évoluer de TP en TP.
 
-Bloqué ? La solution de chaque TP est publiée juste après sa correction : `git pull`, puis copiez `jour1/solution/tpN` dans votre dossier et repartez de là.
+Bloqué ? La solution de chaque TP est publiée juste après sa correction : `git pull`, puis copiez le contenu de `jour1/tpN/solution` dans votre dossier et repartez de là.
 
 ## Avant de commencer
 
@@ -55,9 +57,9 @@ Sans le portail, la CLI suffit : `az resource list -g <resource group> -o table`
 
 | TP | Sujet | Durée |
 |---|---|---|
-| [TP1](tp1.md) | Mon premier resource group | 30 min |
-| [TP2](tp2.md) | Variabiliser et nommer | 30 min |
-| [TP3](tp3.md) | VNet et deux sous-réseaux | 40 min |
-| [TP4](tp4.md) | NSG et règles avec `for_each` | 30 min |
-| [TP5](tp5.md) | Module réseau | 50 min |
-| [Bonus](../bonus/README.md) | Une VM configurée par cloud-init | 30 min |
+| [TP1](tp1/enonce.md) | Mon premier resource group | 30 min |
+| [TP2](tp2/enonce.md) | Variabiliser et nommer | 30 min |
+| [TP3](tp3/enonce.md) | VNet et deux sous-réseaux | 40 min |
+| [TP4](tp4/enonce.md) | NSG et règles avec `for_each` | 30 min |
+| [TP5](tp5/enonce.md) | Module réseau | 50 min |
+| [Bonus](bonus/enonce.md) | Une VM configurée par cloud-init | 30 min |

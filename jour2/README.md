@@ -1,7 +1,8 @@
-# Jour 2 : énoncés
+# Jour 2
 
-Chaque TP est autonome et part d'un **nouveau dossier** (`~/formation/jour2/tp1`, `tp2`...). Rien ne dépend du travail d'hier.
-Bloqué ? La solution de chaque TP est publiée juste après sa correction : `git pull`, puis copiez `jour2/solution/tpN`..
+Chaque TP est autonome et a son dossier : travaillez directement dedans (`cd jour2/tp1`). Rien ne dépend du travail d'hier.
+Vos fichiers ne sont pas suivis par git : `git pull` ne les touche pas.
+Bloqué ? La solution de chaque TP est publiée juste après sa correction dans `jour2/tpN/solution` : `git pull`, puis copiez-la.
 
 ## Avant de commencer
 
@@ -36,11 +37,11 @@ Rappels : préfixe par votre prénom, région `swedencentral`, taille `Standard_
 
 | TP | Sujet | Durée |
 |---|---|---|
-| [TP1](tp1.md) | Un state distant | 30 min |
-| [TP2](tp2.md) | Importer et déplacer | 30 min |
-| [TP3](tp3.md) | Une identité managée avec un rôle | 40 min |
-| [TP4](tp4.md) | Premier pipeline | 30 min |
-| [TP5](tp5.md) | Mon cluster AKS | 50 min |
-| [Bonus](../bonus/README.md) | Un pipeline sans secret (OIDC) | 30 min |
+| [TP1](tp1/enonce.md) | Un state distant | 30 min |
+| [TP2](tp2/enonce.md) | Importer et déplacer | 30 min |
+| [TP3](tp3/enonce.md) | Une identité managée avec un rôle | 40 min |
+| [TP4](tp4/enonce.md) | Premier pipeline | 30 min |
+| [TP5](tp5/enonce.md) | Mon cluster AKS | 50 min |
+| [Bonus](bonus/enonce.md) | Un pipeline sans secret (OIDC) | 30 min |
 
 **Avant de partir** : `terraform destroy` sur le cluster du TP5. Il coûte à l'heure, et demain le code du cluster est fourni.
