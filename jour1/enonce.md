@@ -548,6 +548,26 @@ terraform apply -var-file=dev.tfvars
 - Dans quel ordre Terraform crée-t-il les ressources ? Qui le décide ?
 - Combien coûtent un VNet et ses sous-réseaux ?
 
+### Bonus : voir le graphe des dépendances
+
+Terraform peut dessiner l'ordre qu'il a déduit de vos références.
+
+**À lancer** dans `jour1/` :
+
+```bash
+# Écrit le graphe des ressources au format DOT (Graphviz)
+terraform graph > graph.dot
+```
+
+Sous Windows PowerShell 5, le `>` écrit dans un encodage que les visualiseurs lisent mal : utilisez plutôt `terraform graph | Out-File -Encoding utf8 graph.dot`.
+
+**Pour l'afficher**, au choix :
+
+- dans VS Code, avec l'extension **Graphviz Interactive Preview** : ouvrez `graph.dot`, puis la palette de commandes (Ctrl+Maj+P, ou Cmd+Maj+P sur Mac) et « Graphviz Interactive: Preview » ;
+- en ligne, sans rien installer : collez le contenu de `graph.dot` dans [Graphviz Online](https://dreampuf.github.io/GraphvizOnline).
+
+**Vérifier** : une flèche part de chaque sous-réseau vers le VNet, et du VNet vers le resource group. Rien ne relie `snet-app` à `snet-data` : c'est pour cela que Terraform les crée en même temps.
+
 ### Pour aller plus loin
 
 **À écrire** : un troisième sous-réseau. Quel CIDR choisissez-vous, et pourquoi ?
