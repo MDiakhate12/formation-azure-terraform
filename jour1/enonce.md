@@ -735,17 +735,28 @@ terraform apply -var-file=dev.tfvars
 
 ### Pour aller plus loin
 
-Protégez le NSG de `snet-app`, puis lancez `terraform destroy -var-file=dev.tfvars` : que se passe-t-il ?
+1. Protégez le NSG de `snet-app` contre la destruction.
 
-**À copier** dans le bloc `azurerm_network_security_group` `app` :
+   **À copier** dans le bloc `azurerm_network_security_group` `app` :
 
-```hcl
-  lifecycle {
-    prevent_destroy = true
-  }
-```
+   ```hcl
+     lifecycle {
+       prevent_destroy = true
+     }
+   ```
 
-Retirez ensuite ce bloc : le TP5 en a besoin.
+2. Essayez de tout détruire.
+
+   **À lancer** :
+
+   ```bash
+   # Tente de supprimer toutes les ressources du dossier
+   terraform destroy -var-file=dev.tfvars
+   ```
+
+3. Lisez la réponse de Terraform : que se passe-t-il ? Une ressource a-t-elle été supprimée ?
+
+4. Retirez le bloc `lifecycle` : le TP5 en a besoin.
 
 </details>
 
