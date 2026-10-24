@@ -1,5 +1,17 @@
 # Jour 2 : énoncé
 
+## Table des matières
+
+| Partie | Sujet | Durée |
+|---|---|---|
+| [Prérequis](#lire-les-énoncés) | Lire les énoncés, se connecter à Azure | 5 min |
+| [TP1](#tp1--un-state-distant) | Un state distant | 30 min |
+| [TP2](#tp2--importer-et-déplacer) | Importer et déplacer | 30 min |
+| [TP3](#tp3--une-identité-managée-avec-un-rôle) | Une identité managée avec un rôle | 40 min |
+| [TP4](#tp4--premier-pipeline) | Premier pipeline | 30 min |
+| [TP5](#tp5--mon-cluster-aks) | Mon cluster AKS | 50 min |
+| [Bonus](#bonus--un-pipeline-sans-secret-oidc) | Un pipeline sans secret (OIDC) | 30 min |
+
 Chaque TP est autonome et a son dossier dans le dépôt cloné : travaillez directement dedans (`cd jour2/tp1`). Le fichier `versions.tf` y est déjà. Rien ne dépend du travail d'hier.
 Vos fichiers ne sont pas suivis par git : `git pull` ne les touche pas.
 Bloqué ? La solution de chaque TP est publiée juste après sa correction dans `jour2/solutions/tpN/` : `git pull`, puis copiez-la dans le dossier du TP.
@@ -51,7 +63,7 @@ Pour ne plus y penser, ajoutez-la au démarrage de vos terminaux (à retirer apr
 
 Rappels : préfixe par votre prénom, région `swedencentral`, taille `Standard_D2as_v6`, **aucune zone** sur les nœuds.
 
-## Sommaire
+## Cliquer pour naviguer vers un TP
 
 | TP | Sujet | Durée |
 |---|---|---|

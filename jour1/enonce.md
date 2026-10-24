@@ -1,5 +1,17 @@
 # Jour 1 : énoncé
 
+## Table des matières
+
+| Partie | Sujet | Durée |
+|---|---|---|
+| [Prérequis](#lire-les-énoncés) | Lire les énoncés, se connecter à Azure | 5 min |
+| [TP1](#tp1--mon-premier-resource-group) | Mon premier resource group | 30 min |
+| [TP2](#tp2--variabiliser-et-nommer) | Variabiliser et nommer | 30 min |
+| [TP3](#tp3--vnet-et-deux-sous-réseaux) | VNet et deux sous-réseaux | 40 min |
+| [TP4](#tp4--nsg-et-règles-avec-for_each) | NSG et règles avec `for_each` | 30 min |
+| [TP5](#tp5--module-réseau) | Module réseau | 50 min |
+| [Bonus](#bonus--une-vm-configurée-par-cloud-init) | Une VM configurée par cloud-init | 30 min |
+
 Un fil rouge sur la journée : un resource group, puis un réseau, puis un module réutilisable.
 Vous travaillez **dans le dossier `jour1/` du dépôt cloné**, du TP1 au TP5 : le même code évolue de TP en TP, avec un seul state.
 
@@ -82,7 +94,7 @@ Sans le portail, la CLI suffit : `az resource list -g <resource group> -o table`
 - Région unique : `swedencentral`. Taille de VM autorisée : `Standard_D2as_v6`. Une policy refuse le reste.
 - Détruisez ce qui coûte (la VM du bonus) avant de partir.
 
-## Sommaire
+## Cliquer pour naviguer vers un TP
 
 | TP | Sujet | Durée |
 |---|---|---|

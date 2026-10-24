@@ -18,7 +18,7 @@ Chaque jour est autonome : le code du jour N+1 ne dépend pas de votre travail d
 
 | Dossier | Contenu |
 |---|---|
-| `jourN/enonce.md` | L'énoncé de la journée, avec un sommaire : chaque TP dit dans quel dossier travailler |
+| `jourN/enonce.md` | L'énoncé de la journée, avec une table des matières : chaque TP dit dans quel dossier travailler |
 | `jourN/solutions/` | Vide au départ : chaque solution est publiée juste après sa correction (`git pull`) |
 | `jour1/` | Le dossier de travail du jour 1, du TP1 au TP5 |
 | `jour2/tpX/` | Les dossiers de travail du jour 2, un par TP, avec `versions.tf` |

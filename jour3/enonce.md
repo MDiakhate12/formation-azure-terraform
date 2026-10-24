@@ -1,5 +1,18 @@
 # Jour 3 : énoncé
 
+## Table des matières
+
+| Partie | Sujet | Dossier | Durée |
+|---|---|---|---|
+| [Prérequis](#lire-les-énoncés) | Lire les énoncés, se connecter à Azure |  | 5 min |
+| [Démarrage](#démarrage--relancer-le-cluster) | Relancer le cluster | `jour3/socle/` | 10 min |
+| [TP1](#tp1--brancher-terraform-sur-le-cluster) | Brancher Terraform sur le cluster | `jour3/app/` | 30 min |
+| [TP2](#tp2--mon-application-en-ligne) | Mon application en ligne | `jour3/app/` | 30 min |
+| [TP3](#tp3--exploiter-le-cluster) | Exploiter le cluster | `jour3/socle/` | 40 min |
+| [TP4](#tp4--pannes-volontaires) | Pannes volontaires | `jour3/pannes/` | 30 min |
+| [TP5](#tp5--démonstration-finale) | Démonstration finale | | 30 min |
+| [Bonus](#bonus--déployer-un-chart-helm) | Déployer un chart Helm | `jour3/bonus/` | 20 min |
+
 Le jour 3 part de **code fourni** : rien ne dépend de vos TP d'hier.
 
 | Dossier | Contenu |
@@ -80,7 +93,7 @@ kubectl get nodes
 
 > **Explication.** Le socle contient un VNet, un sous-réseau `snet-aks`, une identité managée pour le cluster (avec le rôle `Network Contributor` sur ce sous-réseau) et le cluster `aks-<prénom>`. Lisez `aks.tf` pendant l'attente : vous le modifierez au TP3.
 
-## Sommaire
+## Cliquer pour naviguer vers un TP
 
 | TP | Sujet | Dossier | Durée |
 |---|---|---|---|
