@@ -822,17 +822,6 @@ variable "subnets" {
   type        = map(string)
   description = "Nom court du sous-réseau vers son CIDR"
 }
-
-variable "protected_subnet" {
-  type        = string
-  description = "Clé de subnets à protéger par le NSG"
-  default     = "app"
-
-  validation {
-    condition     = contains(keys(var.subnets), var.protected_subnet)
-    error_message = "protected_subnet doit être l'une des clés de subnets."
-  }
-}
 ```
 
 **À écrire** dans le même fichier :
@@ -840,10 +829,7 @@ variable "protected_subnet" {
 - `address_space`, de type `list(string)` ;
 - `nsg_rules` : **coupez** la variable `nsg_rules` de votre `variables.tf` (à la racine) et collez-la ici, avec son `default`.
 
-> **Explication.**
-> - Le module ne déclare ni bloc `terraform { }` ni `provider` : il utilise ceux du module racine.
-> - `protected_subnet` dit quel sous-réseau le NSG protège. Sans elle, le module viserait un sous-réseau `app` écrit en dur, et planterait si l'appelant n'en déclarait pas.
-> - La `validation` vérifie dès le `plan` que ce nom existe bien dans `subnets`, avec un message clair. Une validation peut lire une autre variable du module.
+> **Explication.** Le module ne déclare ni bloc `terraform { }` ni `provider` : il utilise ceux du module racine.
 
 ### Étape 3 : déplacer le réseau dans le module
 
@@ -856,8 +842,9 @@ variable "protected_subnet" {
 | `azurerm_resource_group.main.name` | `var.resource_group_name` |
 | `azurerm_resource_group.main.location` | `var.location` |
 | `"vnet-${local.name_prefix}"` | `"vnet-${var.prefix}"` |
-| `"nsg-${local.name_prefix}-app"` | `"nsg-${var.prefix}-${var.protected_subnet}"` |
+| `"nsg-${local.name_prefix}-app"` | `"nsg-${var.prefix}"` (un NSG pour tout le réseau) |
 | `resource "azurerm_virtual_network" "main"` | `resource "azurerm_virtual_network" "this"` (et ses références) |
+| `"app"` dans les noms Terraform du NSG, des règles et de l'association | `"this"` (et leurs références) |
 
 4. **Remplacez** les deux sous-réseaux `app` et `data` par une seule ressource, créée par `for_each` sur la map `subnets`.
 
@@ -874,15 +861,23 @@ resource "azurerm_subnet" "this" {
 }
 ```
 
-5. **À compléter** dans l'association du NSG, qui doit viser le sous-réseau choisi par `protected_subnet` :
+5. **Remplacez** l'association par une association **par sous-réseau** : le même NSG protège tous les sous-réseaux du réseau.
+
+**À compléter** :
 
 ```hcl
-  subnet_id                 = azurerm_subnet.this[...].id   # À COMPLÉTER : la variable protected_subnet
+resource "azurerm_subnet_network_security_group_association" "this" {
+  for_each = ...                                                # À COMPLÉTER : la variable des sous-réseaux
+
+  subnet_id                 = azurerm_subnet.this[...].id       # À COMPLÉTER : la clé de l'élément courant
+  network_security_group_id = azurerm_network_security_group.this.id
+}
 ```
 
 > **Explication.**
 > - `"this"` : le nom d'usage quand un module ne contient qu'une ressource de ce type.
-> - Avec `for_each`, `azurerm_subnet.this` est une collection : `[var.protected_subnet]` choisit une instance par sa clé (`"app"` par défaut).
+> - Avec `for_each`, `azurerm_subnet.this` est une collection : `[each.key]` choisit le sous-réseau qui porte la même clé que l'association.
+> - Le module ne connaît plus aucun nom de sous-réseau : ajouter un sous-réseau dans l'appel le crée **et** le protège.
 
 ### Étape 4 : les sorties du module
 
@@ -929,9 +924,7 @@ module "network_dev" {
 
 **À écrire** : un second appel, `network_prod`, avec `prefix = "prod"`, `10.20.0.0/16`, et les sous-réseaux `10.20.1.0/24` et `10.20.2.0/24`.
 
-> **Explication.**
-> - `module "nom"` appelle un module. `source` dit où il se trouve (ici un dossier local) ; les autres arguments remplissent ses variables.
-> - `protected_subnet` n'est pas passé : sa valeur par défaut, `"app"`, s'applique. Pour protéger `data` à la place : `protected_subnet = "data"`.
+> **Explication.** `module "nom"` appelle un module. `source` dit où il se trouve (ici un dossier local) ; les autres arguments remplissent ses variables.
 
 ### Étape 7 : les sorties de la racine
 
@@ -971,12 +964,12 @@ terraform plan -var-file=dev.tfvars
 terraform apply -var-file=dev.tfvars
 ```
 
-**Vérifier** : le plan annonce `15 to add` et `8 to destroy`. Les 8 destructions sont l'ancien réseau du TP4 (le resource group `-dev` et son contenu) : c'est normal, et la question ci-dessous y revient.
+**Vérifier** : le plan annonce `17 to add` et `8 to destroy`. Les 8 destructions sont l'ancien réseau du TP4 (le resource group `-dev` et son contenu) : c'est normal, et la question ci-dessous y revient.
 
 ### Étape 9 : retrouver les deux réseaux dans le portail
 
-1. Ouvrez `rg-<prénom>-reseau` : **Overview** (Vue d'ensemble) liste `vnet-dev`, `vnet-prod`, `nsg-dev-app` et `nsg-prod-app`.
-2. Ouvrez `vnet-prod`, menu **Settings > Subnets** (Paramètres > Sous-réseaux) : `snet-app` (`10.20.1.0/24`, avec son NSG) et `snet-data`.
+1. Ouvrez `rg-<prénom>-reseau` : **Overview** (Vue d'ensemble) liste `vnet-dev`, `vnet-prod`, `nsg-dev` et `nsg-prod`.
+2. Ouvrez `vnet-prod`, menu **Settings > Subnets** (Paramètres > Sous-réseaux) : `snet-app` (`10.20.1.0/24`) et `snet-data` (`10.20.2.0/24`), tous deux protégés par `nsg-prod`.
 3. Faites de même avec `vnet-dev` : même structure, autres plages. C'est le même module.
 4. Vérifiez que `rg-<prénom>-dev` a disparu.
 
