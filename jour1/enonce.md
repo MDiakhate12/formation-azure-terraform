@@ -820,7 +820,18 @@ variable "prefix" {
 
 variable "subnets" {
   type        = map(string)
-  description = "Nom court du sous-réseau vers son CIDR. Doit contenir app."
+  description = "Nom court du sous-réseau vers son CIDR"
+}
+
+variable "protected_subnet" {
+  type        = string
+  description = "Clé de subnets à protéger par le NSG"
+  default     = "app"
+
+  validation {
+    condition     = contains(keys(var.subnets), var.protected_subnet)
+    error_message = "protected_subnet doit être l'une des clés de subnets."
+  }
 }
 ```
 
@@ -829,7 +840,10 @@ variable "subnets" {
 - `address_space`, de type `list(string)` ;
 - `nsg_rules` : **coupez** la variable `nsg_rules` de votre `variables.tf` (à la racine) et collez-la ici, avec son `default`.
 
-> **Explication.** Le module ne déclare ni bloc `terraform { }` ni `provider` : il utilise ceux du module racine.
+> **Explication.**
+> - Le module ne déclare ni bloc `terraform { }` ni `provider` : il utilise ceux du module racine.
+> - `protected_subnet` dit quel sous-réseau le NSG protège. Sans elle, le module viserait un sous-réseau `app` écrit en dur, et planterait si l'appelant n'en déclarait pas.
+> - La `validation` vérifie dès le `plan` que ce nom existe bien dans `subnets`, avec un message clair. Une validation peut lire une autre variable du module.
 
 ### Étape 3 : déplacer le réseau dans le module
 
@@ -842,7 +856,7 @@ variable "subnets" {
 | `azurerm_resource_group.main.name` | `var.resource_group_name` |
 | `azurerm_resource_group.main.location` | `var.location` |
 | `"vnet-${local.name_prefix}"` | `"vnet-${var.prefix}"` |
-| `"nsg-${local.name_prefix}-app"` | `"nsg-${var.prefix}-app"` |
+| `"nsg-${local.name_prefix}-app"` | `"nsg-${var.prefix}-${var.protected_subnet}"` |
 | `resource "azurerm_virtual_network" "main"` | `resource "azurerm_virtual_network" "this"` (et ses références) |
 
 4. **Remplacez** les deux sous-réseaux `app` et `data` par une seule ressource, créée par `for_each` sur la map `subnets`.
@@ -860,15 +874,15 @@ resource "azurerm_subnet" "this" {
 }
 ```
 
-5. **À compléter** dans l'association du NSG, qui doit viser le sous-réseau `app` de la map :
+5. **À compléter** dans l'association du NSG, qui doit viser le sous-réseau choisi par `protected_subnet` :
 
 ```hcl
-  subnet_id                 = azurerm_subnet.this[...].id   # À COMPLÉTER : la clé "app", entre guillemets
+  subnet_id                 = azurerm_subnet.this[...].id   # À COMPLÉTER : la variable protected_subnet
 ```
 
 > **Explication.**
 > - `"this"` : le nom d'usage quand un module ne contient qu'une ressource de ce type.
-> - Avec `for_each`, `azurerm_subnet.this` est une collection : `["app"]` choisit une instance par sa clé.
+> - Avec `for_each`, `azurerm_subnet.this` est une collection : `[var.protected_subnet]` choisit une instance par sa clé (`"app"` par défaut).
 
 ### Étape 4 : les sorties du module
 
@@ -915,7 +929,9 @@ module "network_dev" {
 
 **À écrire** : un second appel, `network_prod`, avec `prefix = "prod"`, `10.20.0.0/16`, et les sous-réseaux `10.20.1.0/24` et `10.20.2.0/24`.
 
-> **Explication.** `module "nom"` appelle un module. `source` dit où il se trouve (ici un dossier local) ; les autres arguments remplissent ses variables.
+> **Explication.**
+> - `module "nom"` appelle un module. `source` dit où il se trouve (ici un dossier local) ; les autres arguments remplissent ses variables.
+> - `protected_subnet` n'est pas passé : sa valeur par défaut, `"app"`, s'applique. Pour protéger `data` à la place : `protected_subnet = "data"`.
 
 ### Étape 7 : les sorties de la racine
 
