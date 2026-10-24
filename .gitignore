@@ -30,3 +30,5 @@ __pycache__/
 
 # Les dev.tfvars fournis ne contiennent que le prénom à remplacer
 !dev.tfvars
+# Solution du TP5 du jour 1 : le fichier de valeurs y devient terraform.tfvars
+!jour1/solutions/tp5/terraform.tfvars

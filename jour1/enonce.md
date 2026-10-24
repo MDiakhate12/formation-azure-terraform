@@ -902,7 +902,9 @@ Le réseau a quitté la racine : ce qui le concernait n'y sert plus.
 **À faire** :
 1. `variables.tf` (racine) : ne gardez que `prenom` et `location`. Supprimez `environment` et `address_space` (`nsg_rules` et `enable_data_nsg` sont déjà partis).
 2. `main.tf` : supprimez le bloc `locals`, et nommez le resource group `"rg-${var.prenom}-reseau"`.
-3. `dev.tfvars` : ne gardez que la ligne `prenom`.
+3. `dev.tfvars` : ne gardez que la ligne `prenom`, puis **renommez** le fichier en `terraform.tfvars`. Il sert maintenant à dev **et** à prod : un nom en `dev` serait trompeur.
+
+> **Explication.** Terraform charge **automatiquement** `terraform.tfvars` (et tout fichier `*.auto.tfvars`) : plus besoin de `-var-file`. On garde `-var-file` pour choisir un fichier parmi plusieurs, comme au TP2.
 
 ### Étape 6 : appeler le module deux fois
 
@@ -960,8 +962,8 @@ output "subnet_ids" {
 terraform init
 terraform validate
 # Lisez le résumé : ce qui est créé, et ce qui est détruit
-terraform plan -var-file=dev.tfvars
-terraform apply -var-file=dev.tfvars
+terraform plan
+terraform apply
 ```
 
 **Vérifier** : le plan annonce `17 to add` et `8 to destroy`. Les 8 destructions sont l'ancien réseau du TP4 (le resource group `-dev` et son contenu) : c'est normal, et la question ci-dessous y revient.
