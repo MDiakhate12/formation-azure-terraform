@@ -652,7 +652,17 @@ resource "azurerm_network_security_rule" "app" {
 
 > **Explication.**
 > - `each.key` : la clé de l'élément courant (`allow-https`). `each.value` : sa valeur, l'objet ; `each.value.priority` en lit un champ.
-> - `direction = "Inbound"` : la règle filtre le trafic **entrant**. `"*"` : n'importe quelle valeur.
+> - `name` : le nom de la règle dans Azure, ici la clé de la map (`allow-https`, `deny-ssh`).
+> - `priority` : de 100 à 4096. Azure lit les règles de la plus petite à la plus grande et **s'arrête à la première qui correspond**. Deux règles d'un même NSG ne peuvent pas avoir la même priorité.
+> - `direction` : `"Inbound"` filtre le trafic **entrant** dans le sous-réseau, `"Outbound"` le trafic sortant.
+> - `access` : `"Allow"` laisse passer, `"Deny"` bloque.
+> - `protocol` : `"Tcp"`, `"Udp"`, `"Icmp"` (le ping) ou `"*"` pour tous. HTTPS et SSH utilisent TCP.
+> - `source_port_range` : le port **de départ**, côté client. Il est choisi au hasard par la machine qui se connecte : on met presque toujours `"*"`.
+> - `destination_port_range` : le port **d'arrivée**, celui du service visé (`443` pour HTTPS, `22` pour SSH). Une plage s'écrit `"8000-8080"`.
+> - `source_address_prefix` : d'où vient le trafic. `"*"` : de partout. On peut mettre une adresse (`"203.0.113.10"`), une plage CIDR (`"10.0.0.0/16"`) ou un nom fourni par Azure (`"Internet"`, `"VirtualNetwork"`).
+> - `destination_address_prefix` : où va le trafic, avec les mêmes valeurs possibles. `"*"` : tout ce que protège le NSG.
+> - `resource_group_name` et `network_security_group_name` : à quel NSG la règle appartient. La règle est une ressource à part, rattachée au NSG par son nom : c'est ce qui permet de la créer avec `for_each`.
+> - `"*"` : partout où il apparaît, il signifie « n'importe quelle valeur ».
 
 ### Étape 4 : associer le NSG au sous-réseau
 
