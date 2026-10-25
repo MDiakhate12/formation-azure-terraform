@@ -199,6 +199,8 @@ body.ui-on #ui,body.ui-on #cnt{opacity:1}
 #clock.over span{color:#CF222E}
 #toast{position:fixed;left:50%;top:max(18px,env(safe-area-inset-top));transform:translate(-50%,-20px);background:var(--ink);color:var(--bg);font:600 15px var(--font-body);padding:10px 20px;border-radius:999px;opacity:0;transition:opacity .35s,transform .35s;z-index:90;pointer-events:none;white-space:nowrap}
 #toast.on{opacity:1;transform:translate(-50%,0)}
+body.audience #notes,body.audience #clock,body.audience #ui,body.audience #menu,body.audience #help,body.audience #cnt{display:none!important}
+body.presenter #notes{max-height:55vh;font-size:20px}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 @media print{
  html,body{overflow:visible;height:auto}
@@ -299,6 +301,7 @@ body.ui-on #ui,body.ui-on #cnt{opacity:1}
  <kbd>T</kbd> changer de thème · <kbd>D</kbd> mode sombre<br>
  <kbd>F</kbd> plein écran · <kbd>Échap</kbd> fermer<br>
  <kbd>C</kbd> horloge de la slide (version formateur) · clic sur l’horloge : relancer<br>
+ <kbd>P</kbd> mode présentateur (version formateur) : ouvre la fenêtre participants, synchronisée et sans notes<br>
  Impression ou PDF : Ctrl/Cmd + P, une page par slide.
 </div></div>
 <div id="clock" title="Temps prévu pour cette slide (clic : relancer, C : masquer)"><svg viewBox="0 0 44 44" aria-hidden="true"><circle class="bg" cx="22" cy="22" r="18"/><circle class="lap1" cx="22" cy="22" r="18"/><circle class="lap2" cx="22" cy="22" r="18"/></svg><span></span></div>
@@ -316,6 +319,15 @@ function load(k){try{return localStorage.getItem('azt-'+k);}catch(e){return null
 var slides=$$('.slide'),N=slides.length,cur=-1;
 var bar=$('#bar'),cnt=$('#cnt'),notes=$('#notes'),notesBody=$('#notesBody'),notesId=$('#notesId'),menu=$('#menu'),help=$('#help'),toastEl=$('#toast');
 var palettes=['lagon','aurore','sable','contraste'];
+// Mode présentateur : la version formateur ouvre une fenêtre « participants » synchronisée, sans notes ni horloge.
+// postMessage fonctionne aussi entre fenêtres ouvertes depuis un fichier local.
+var AUD=/[?&]audience\b/.test(location.search),aud=null;
+if(AUD){document.body.classList.add('audience');}
+function sync(){
+  if(!aud||aud.closed){return;}
+  try{aud.postMessage({azt:'go',n:cur,s:$$('.step.shown',slides[cur]).length,pal:root.getAttribute('data-palette'),th:root.getAttribute('data-theme')},'*');}catch(e){}
+}
+function nav(d){if(window.opener){window.opener.postMessage({azt:'nav',d:d},'*');}}
 var p0=load('palette');if(p0&&palettes.indexOf(p0)>-1){root.setAttribute('data-palette',p0);}
 if(load('dark')==='1'){root.setAttribute('data-theme','dark');}
 slides.forEach(function(s){
@@ -363,12 +375,12 @@ function show(n,dir){
   if(n===cur){return;}
   slides.forEach(function(s,i){s.classList.toggle('active',i===n);s.classList.toggle('before',i<n);});
   $$('.step',slides[n]).forEach(function(el){if(dir<0){el.classList.add('shown');}else{el.classList.remove('shown');}});
-  cur=n;updateUI();countUp(slides[n]);tick();startClock();
+  cur=n;updateUI();countUp(slides[n]);tick();startClock();sync();
   try{history.replaceState(null,'','#'+(n+1));}catch(e){}
 }
 function next(){
   var hid=$$('.step:not(.shown)',slides[cur]);
-  if(hid.length){hid[0].classList.add('shown');return;}
+  if(hid.length){hid[0].classList.add('shown');sync();return;}
   show(cur+1,1);
 }
 function prev(){show(cur-1,-1);}
@@ -408,17 +420,37 @@ function startClock(){
 function toggleClock(){clockHidden=!clockHidden;store('clock',clockHidden?'0':'1');clock.classList.toggle('on',!!clockDur&&!clockHidden);toast(clockHidden?'Horloge masquée':'Horloge affichée');}
 clock.addEventListener('click',function(e){e.stopPropagation();clockT0=Date.now();drawClock();toast('Horloge relancée');});
 setInterval(drawClock,250);
-$$('.timer').forEach(function(b){
+$$('.timer').forEach(function(b,bi){
   var total=(+b.getAttribute('data-min'))*60,left=total,iv=null,t=$('.t',b),a=$('.act',b);
   function draw(){t.textContent=pad(Math.floor(left/60))+':'+pad(left%60);}
   b.addEventListener('click',function(e){
     e.stopPropagation();
+    if(aud&&!aud.closed){aud.postMessage({azt:'timer',i:bi},'*');}
     if(iv){clearInterval(iv);iv=null;b.classList.remove('run');a.textContent='Reprendre';return;}
     if(left<=0){left=total;draw();}
     b.classList.remove('done');b.classList.add('run');a.textContent='Pause';
     iv=setInterval(function(){left--;draw();if(left<=0){clearInterval(iv);iv=null;b.classList.remove('run');b.classList.add('done');a.textContent='Temps écoulé';}},1000);
   });
   draw();
+});
+var hasNotes=slides.some(function(s){var a=$('aside',s);return a&&a.textContent.trim();});
+function openAudience(){
+  if(AUD||!hasNotes){return;}
+  aud=window.open(location.href.split('#')[0].split('?')[0]+'?audience#'+(cur+1),'azt-audience','popup,width=1280,height=760');
+  if(!aud){toast('Fenêtre bloquée : autorisez les pop-ups pour ce fichier');return;}
+  document.body.classList.add('presenter');notes.classList.add('open');updateNotes();
+  toast('Fenêtre participants ouverte : glissez-la sur l’écran partagé, puis F');
+}
+window.addEventListener('message',function(e){
+  var d=e.data;if(!d||!d.azt){return;}
+  if(AUD&&d.azt==='go'){
+    if(d.pal){root.setAttribute('data-palette',d.pal);}
+    if(d.th){root.setAttribute('data-theme',d.th);}
+    show(d.n,d.n>=cur?1:-1);
+    $$('.step',slides[cur]).forEach(function(el,i){el.classList.toggle('shown',i<d.s);});
+  }else if(AUD&&d.azt==='timer'){var tb=$$('.timer')[d.i];if(tb){tb.click();}}
+  else if(!AUD&&d.azt==='hello'){aud=e.source;sync();}
+  else if(!AUD&&d.azt==='nav'){if(d.d==='next'){next();}else if(d.d==='prev'){prev();}else if(d.d==='home'){show(0,-1);}else if(d.d==='end'){show(N-1,1);}}
 });
 var mh='';
 slides.forEach(function(s,i){
@@ -429,9 +461,9 @@ slides.forEach(function(s,i){
 menu.innerHTML=mh;
 menu.addEventListener('click',function(e){var b=e.target.closest('button');if(b){show(+b.getAttribute('data-i'),+b.getAttribute('data-i')>cur?1:-1);menu.classList.remove('open');}});
 function tgl(el){el.classList.toggle('open');}
-function setPalette(p){root.setAttribute('data-palette',p);store('palette',p);toast('Thème : '+p);}
+function setPalette(p){root.setAttribute('data-palette',p);store('palette',p);toast('Thème : '+p);sync();}
 function nextPalette(){var c=root.getAttribute('data-palette')||'lagon';setPalette(palettes[(palettes.indexOf(c)+1)%palettes.length]);}
-function toggleDark(){var d=root.getAttribute('data-theme')==='dark';root.setAttribute('data-theme',d?'light':'dark');store('dark',d?'0':'1');toast(d?'Mode clair':'Mode sombre');}
+function toggleDark(){var d=root.getAttribute('data-theme')==='dark';root.setAttribute('data-theme',d?'light':'dark');store('dark',d?'0':'1');toast(d?'Mode clair':'Mode sombre');sync();}
 function full(){try{if(!document.fullscreenElement){root.requestFullscreen();}else{document.exitFullscreen();}}catch(e){}}
 $('#bPrev').addEventListener('click',prev);$('#bNext').addEventListener('click',next);
 $('#bMenu').addEventListener('click',function(){tgl(menu);});
@@ -442,6 +474,14 @@ help.addEventListener('click',function(){help.classList.remove('open');});
 document.addEventListener('keydown',function(e){
   if(e.metaKey||e.ctrlKey||e.altKey){return;}
   var k=e.key;
+  if(AUD){
+    if(k==='ArrowRight'||k===' '||k==='PageDown'||k==='Enter'){e.preventDefault();nav('next');}
+    else if(k==='ArrowLeft'||k==='PageUp'||k==='Backspace'){e.preventDefault();nav('prev');}
+    else if(k==='Home'){nav('home');}else if(k==='End'){nav('end');}
+    else if(k==='f'||k==='F'){full();}
+    return;
+  }
+  if(k==='p'||k==='P'){openAudience();return;}
   if(k==='ArrowRight'||k===' '||k==='PageDown'||k==='Enter'){e.preventDefault();next();}
   else if(k==='ArrowLeft'||k==='PageUp'||k==='Backspace'){e.preventDefault();prev();}
   else if(k==='Home'){show(0,-1);}else if(k==='End'){show(N-1,1);}
@@ -456,14 +496,14 @@ document.addEventListener('keydown',function(e){
 });
 stage.addEventListener('click',function(e){
   if(e.target.closest('button,a')){return;}
-  if(e.clientX/window.innerWidth<0.25){prev();}else{next();}
+  if(e.clientX/window.innerWidth<0.25){if(AUD){nav('prev');}else{prev();}}else{if(AUD){nav('next');}else{next();}}
 });
 var sx=null;
 document.addEventListener('touchstart',function(e){sx=e.touches[0].clientX;},{passive:true});
 document.addEventListener('touchend',function(e){
   if(sx===null){return;}
   var dx=e.changedTouches[0].clientX-sx;sx=null;
-  if(Math.abs(dx)>60){if(dx<0){next();}else{prev();}}
+  if(Math.abs(dx)>60){if(dx<0){if(AUD){nav('next');}else{next();}}else{if(AUD){nav('prev');}else{prev();}}}
 },{passive:true});
 var idle;
 function wake(){document.body.classList.add('ui-on');clearTimeout(idle);idle=setTimeout(function(){document.body.classList.remove('ui-on');},2600);}
@@ -473,7 +513,8 @@ fit();
 var st=parseInt((location.hash||'').slice(1),10);
 show(isNaN(st)?0:st-1,1);
 wake();
-setTimeout(function(){toast('Flèches ou espace · N notes · M plan · T thème · ? aide');},900);
+if(AUD){if(window.opener){window.opener.postMessage({azt:'hello'},'*');}}
+else{setTimeout(function(){toast('Flèches ou espace · N notes · M plan · T thème · ? aide'+(hasNotes?' · P présentateur':''));},900);}
 })();
 </script>
 </body>
