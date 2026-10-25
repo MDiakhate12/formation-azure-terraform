@@ -827,7 +827,7 @@ variable "subnets" {
 **À écrire** dans le même fichier :
 - `resource_group_name` et `location`, de type `string` ;
 - `address_space`, de type `list(string)` ;
-- `nsg_rules` : **coupez** la variable `nsg_rules` de votre `variables.tf` (à la racine) et collez-la ici, avec son `default`.
+- `nsg_rules` : **coupez** la variable `nsg_rules` de votre `variables.tf` (à la racine) et collez-la ici, avec son `default`. Adaptez sa `description` : `"Règles entrantes du NSG du réseau"`, puisque le NSG protégera désormais tous les sous-réseaux.
 
 > **Explication.** Le module ne déclare ni bloc `terraform { }` ni `provider` : il utilise ceux du module racine.
 
