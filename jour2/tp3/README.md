@@ -33,7 +33,7 @@ resource "azurerm_resource_group" "main" {
 resource "azurerm_user_assigned_identity" "app" {
   name                = "id-${...}-app"     # À COMPLÉTER : la variable du prénom
   resource_group_name = ...                 # À COMPLÉTER : le nom du resource group (référence)
-  location            = ...                 # À COMPLÉTER : sa région (référence)
+  location            = ...                 # À COMPLÉTER : la région du resource group (référence)
 }
 ```
 
