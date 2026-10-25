@@ -78,6 +78,12 @@ resource "azurerm_storage_container" "state" {
 > - `shared_access_key_enabled = true` : Terraform pourra lire et écrire le state avec la clé du compte.
 > - `container_access_type = "private"` : le state peut contenir des secrets, il ne doit jamais être public.
 
+Pour info:
+• LRS : Protège contre une panne de disque/serveur. (Le moins cher)
+• ZRS : Protège contre la perte d'un bâtiment.
+• GRS : Protège contre la perte d'une région entière.
+• GZRS : Protection maximale sur tous les niveaux. (Le plus cher)
+
 **À écrire** dans un nouveau fichier `outputs.tf` : un output `storage_account_name` qui affiche le nom du compte de stockage.
 
 ## Étape 3 : créer le stockage, avec un state encore local
