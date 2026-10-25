@@ -74,7 +74,7 @@ Le nom `legacy` ne vous plaît plus : vous voulez `manuel`. Renommer un bloc fai
 
 **À faire** dans `main.tf` :
 1. Renommez le bloc `resource "azurerm_resource_group" "legacy"` en `"manuel"`.
-2. Dans le bloc `import`, remplacez `to = azurerm_resource_group.legacy` par `to = azurerm_resource_group.manuel`.
+2. **Supprimez** le bloc `import` : l'import est fait, la ressource est dans le state, il ne sert plus.
 
 **À compléter** à la suite, dans `main.tf` :
 
@@ -85,7 +85,9 @@ moved {
 }
 ```
 
-> **Explication.** `moved` dit à Terraform : « c'est la même ressource, elle a seulement changé d'adresse dans le code ». Le bloc `import` peut rester : il est ignoré pour une ressource déjà dans le state.
+> **Explication.**
+> - `moved` dit à Terraform : « c'est la même ressource, elle a seulement changé d'adresse dans le code ».
+> - Un `import` est un geste ponctuel : une fois la ressource dans le state, on retire le bloc. S'il restait et visait encore `legacy`, Terraform refuserait le `moved` (`Moved object still exists`).
 
 **À lancer** :
 
@@ -144,12 +146,26 @@ terraform apply -var-file=dev.tfvars
 
 ## Pour aller plus loin
 
-Supprimez le bloc `resource` et laissez Terraform l'écrire à votre place :
+Laissez Terraform écrire lui-même le bloc `resource` d'une ressource à importer.
 
-```bash
-# Écrit dans generated.tf le code de la ressource à importer
-terraform plan -var-file=dev.tfvars -generate-config-out=generated.tf
-```
+1. **À lancer** : un second resource group, créé à la main.
+
+   ```bash
+   az group create -n rg-<prénom>-genere -l swedencentral
+   ```
+
+2. **À écrire** dans `main.tf` : un bloc `import` seul, sans bloc `resource`, avec `to = azurerm_resource_group.genere` et l'identifiant de ce resource group.
+
+3. **À lancer** :
+
+   ```bash
+   # Écrit dans generated.tf le bloc resource de la ressource à importer
+   terraform plan -var-file=dev.tfvars -generate-config-out=generated.tf
+   ```
+
+4. Lisez `generated.tf`, puis `apply` : le plan annonce `1 to import`. Supprimez ensuite le bloc `import`, comme à l'étape 4.
+
+> **Explication.** `-generate-config-out` ne fonctionne que pour une ressource visée par un `import` et absente du state : c'est pourquoi il faut un nouveau resource group.
 
 ---
 
