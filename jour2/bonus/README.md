@@ -76,7 +76,7 @@ resource "azurerm_federated_identity_credential" "github" {
 }
 ```
 
-**À écrire** à la fin : une `azurerm_role_assignment` nommée `reader`, qui donne `Reader` à l'identité sur son resource group (comme au TP3).
+**À écrire** à la fin : une `azurerm_role_assignment` nommée `reader`, qui donne `Lecteur formation` à l'identité sur son resource group (comme au TP3).
 
 > **Explication.**
 > - `issuer` : qui émet les jetons, ici GitHub. `audience` : à qui ils sont destinés, ici Azure.
@@ -139,7 +139,7 @@ Le pipeline se connecte à Azure sans secret. Faisons-lui maintenant **exécuter
 
 ### Étape A : donner au pipeline les droits de créer
 
-Aujourd'hui, l'identité n'a que `Reader`. Il lui faut deux droits de plus, et rien d'autre : créer dans **son** resource group, et lire et écrire **son** state, dans le conteneur partagé `oidc`.
+Aujourd'hui, l'identité n'a que `Lecteur formation`. Il lui faut deux droits de plus, et rien d'autre : créer dans **son** resource group, et lire et écrire **son** state, dans le conteneur partagé `oidc`.
 
 **À copier** dans un nouveau fichier `pipeline.tf`, dans `jour2/bonus/` :
 

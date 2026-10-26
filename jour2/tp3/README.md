@@ -8,7 +8,7 @@
 ## Où on en est, où on va
 
 Une application qui appelle Azure a besoin d'une identité. Une **identité managée** n'a aucun mot de passe : Azure gère ses jetons.
-À la fin de ce TP, vous aurez une identité `id-<prénom>-app` avec le rôle `Reader`, limité à un seul resource group : le principe du moindre privilège.
+À la fin de ce TP, vous aurez une identité `id-<prénom>-app` avec un rôle de lecture seule, limité à un seul resource group : le principe du moindre privilège.
 
 ## Étape 1 : se placer dans le dossier, reprendre les variables
 
@@ -54,7 +54,8 @@ resource "azurerm_role_assignment" "reader" {
 > **Explication.**
 > - `scope` : la portée. Ici le resource group : l'identité ne verra rien d'autre.
 > - `principal_id` : l'identifiant de l'identité dans Microsoft Entra ID, celui à qui l'on donne des rôles.
-> - Vous ne pouvez attribuer que les rôles `Reader`, `Network Contributor` et `AcrPull` : c'est une règle de la formation.
+> - Le rôle à attribuer s'appelle `Lecteur formation` : c'est le rôle Azure `Reader`, sans l'accès aux coûts de la subscription. En entreprise, vous utiliseriez `Reader`.
+> - Vous ne pouvez attribuer que `Lecteur formation`, `Contributeur formation`, `Network Contributor`, `AcrPull` et `Storage Blob Data Contributor` : c'est une règle de la formation.
 
 ## Étape 4 : les sorties, puis l'apply
 
@@ -72,11 +73,11 @@ az role assignment list --scope $(terraform output -raw resource_group_id) -o ta
 
 Sous PowerShell, la dernière commande devient : `az role assignment list --scope (terraform output -raw resource_group_id) -o table`.
 
-**Vérifier** : le plan annonce `3 to add`, et la liste montre le rôle `Reader` pour votre identité.
+**Vérifier** : le plan annonce `3 to add`, et la liste montre le rôle `Lecteur formation` pour votre identité.
 
 ## Étape 5 : essayer un rôle interdit
 
-**À faire** : remplacez `"Reader"` par `"Contributor"`, lancez `terraform apply -var-file=dev.tfvars`, lisez l'erreur, puis remettez `"Reader"`.
+**À faire** : remplacez `"Lecteur formation"` par `"Contributor"`, lancez `terraform apply -var-file=dev.tfvars`, lisez l'erreur, puis remettez `"Lecteur formation"`.
 
 **Vérifier** : l'erreur `AuthorizationFailed` : vous n'avez pas le droit d'attribuer ce rôle.
 
@@ -97,7 +98,7 @@ terraform apply -var-file=dev.tfvars
 ## Étape 7 : vérifier dans le portail
 
 1. Ouvrez `rg-<prénom>-identite`, menu **Access control (IAM)** (Contrôle d'accès), onglet **Role assignments** (Attributions de rôles).
-2. Avant l'étape 6 : `id-<prénom>-app` y figure avec le rôle `Reader`. Après : il a disparu.
+2. Avant l'étape 6 : `id-<prénom>-app` y figure avec le rôle `Lecteur formation`. Après : il a disparu.
 3. Ouvrez l'identité `id-<prénom>-app` : sa vue d'ensemble affiche son **Client ID** et son **Object (principal) ID**.
 
 ## Documentation
