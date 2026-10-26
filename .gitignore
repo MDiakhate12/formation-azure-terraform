@@ -32,3 +32,16 @@ __pycache__/
 !dev.tfvars
 # Solution du TP5 du jour 1 : le fichier de valeurs y devient terraform.tfvars
 !jour1/solutions/tp5/terraform.tfvars
+
+# Fichiers de travail écrits pendant les TP : jamais versionnés (seuls les fichiers fournis le sont)
+jour1/*.tf
+jour1/*.tfvars
+jour1/graph.dot
+jour1/modules/
+jour1/.terraform.lock.hcl
+jour2/tp*/*.tf
+!jour2/tp*/versions.tf
+jour2/tp*/*.tfvars
+jour2/tp*/.terraform.lock.hcl
+jour2/bonus/*.tf
+!jour2/bonus/versions.tf
