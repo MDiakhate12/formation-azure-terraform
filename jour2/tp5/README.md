@@ -33,20 +33,32 @@ Les valeurs dans `dev.tfvars` : vous pouvez repartir de `../tp1/variables.tf` et
 |---|---|
 | Resource group | Nom `rg-<prénom>-aks`, région `var.location` |
 | Cluster `azurerm_kubernetes_cluster` | Nom `aks-<prénom>`, `dns_prefix` identique, dans le resource group ci-dessus |
-| Pool de nœuds par défaut | Nom `system`, taille `Standard_D2as_v6` (la seule autorisée), nombre de nœuds `var.node_count`, **aucune zone** |
-| Identité du cluster | Identité managée attribuée par le système |
+| Pool de nœuds par défaut | Le bloc `default_node_pool`, dans le cluster : `name = "system"`, `vm_size` = `Standard_D2as_v6` (la seule autorisée), `node_count` = votre variable. **N'écrivez pas** d'argument `zones` |
+| Identité du cluster | Le bloc `identity`, dans le cluster, avec `type = "SystemAssigned"` : une identité managée attribuée par le système, créée et supprimée avec le cluster |
 
 ### Lecture du registre partagé
 
-Un data source qui lit le registre `acrformationtf`, dans le resource group `rg-formation-partage`. Il ne crée rien.
+Un data source **lit** une ressource qui existe déjà, sans jamais la créer ni la détruire. Sa forme :
+
+```hcl
+data "<type>" "<nom choisi>" {
+  # les arguments qui identifient la ressource à lire
+}
+```
+
+Il se référence ensuite avec le préfixe `data.` : `data.<type>.<nom choisi>.<attribut>`.
+
+À vous : le type `azurerm_container_registry`. La section **Argument Reference** de [sa documentation](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/container_registry) donne les deux arguments obligatoires : le nom du registre (`acrformationtf`) et son resource group (`rg-formation-partage`). La section **Attributes Reference** liste ce que vous pouvez lire, dont `login_server`.
 
 ### Sorties
 
-| Output | Valeur |
-|---|---|
-| `get_credentials` | La commande `az aks get-credentials` complète pour **votre** cluster, construite à partir des références |
-| `kubernetes_version` | La version de Kubernetes du cluster |
-| `registry_login_server` | L'adresse du registre lu par le data source |
+Chaque output a la forme `output "<nom>" { value = ... }`. Les valeurs viennent toutes de **références**, jamais de texte écrit en dur.
+
+| Output | Valeur | Indice |
+|---|---|---|
+| `get_credentials` | La commande `az aks get-credentials` complète pour **votre** cluster | Une chaîne avec interpolation : `"az aks get-credentials --resource-group ${...} --name ${...}"`, avec le nom du resource group et celui du cluster |
+| `kubernetes_version` | La version de Kubernetes du cluster | Un attribut du cluster qui porte ce nom : voir **Attributes Reference** de `azurerm_kubernetes_cluster` |
+| `registry_login_server` | L'adresse du registre | L'attribut `login_server` de votre data source, avec le préfixe `data.` |
 
 ## Les critères de réussite
 
