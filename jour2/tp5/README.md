@@ -191,15 +191,6 @@ terraform plan -var-file=dev.tfvars -var="node_count=2"
 2. Menu **Settings > Node pools** (Paramètres > Pools de nœuds) : le pool `system`, 1 nœud, `Standard_D2as_v6`.
 3. Cherchez le resource group `MC_rg-<prénom>-aks_aks-<prénom>_swedencentral` : AKS l'a créé seul, il contient les VM des nœuds.
 
-## Partie 8 : détruire le cluster
-
-Un cluster coûte à l'heure, même sans rien faire. Faites d'abord le « Pour aller plus loin » si vous le souhaitez, puis :
-
-```bash
-# Supprime le cluster et son resource group (tapez yes) : quelques minutes
-terraform destroy -var-file=dev.tfvars
-```
-
 ## Questions
 
 - Dans quel resource group Azure a-t-il placé les VM des nœuds ?
@@ -250,7 +241,25 @@ mv node-pool.tf node-pool.tf.bonus
 terraform apply -var-file=dev.tfvars
 ```
 
-Ou passez directement au `terraform destroy` de la fin du TP, qui supprime tout.
+Ou passez directement à la dernière étape, le `destroy`, qui supprime tout.
+
+## Dernière étape : détruire le cluster, après avoir prévenu le formateur
+
+> **Attention : ne lancez pas le `destroy` tout de suite.**
+> 1. **Prévenez d'abord le formateur** : il vient regarder votre cluster avec vous.
+> 2. Vous voulez faire le « Pour aller plus loin » ? Faites-le **avant** cette étape : il a besoin du cluster.
+> 3. Seulement ensuite, détruisez.
+
+Un cluster coûte à l'heure, même sans rien faire.
+
+**À lancer**, une fois le formateur passé :
+
+```bash
+# Supprime le cluster et son resource group (tapez yes) : quelques minutes
+terraform destroy -var-file=dev.tfvars
+```
+
+**Vérifier** : `az aks list -o table` ne montre plus `aks-<prénom>`.
 
 ---
 
