@@ -5,154 +5,85 @@
 **Objectif** : créer un cluster Kubernetes managé à un nœud, s'y connecter, puis le détruire. **Durée** : 50 minutes.
 **Dossier de travail** : `jour2/tp5/` (le fichier `versions.tf` y est déjà)
 
+Ce TP est un **cahier des charges** : pas de code à compléter. Vous écrivez tout à partir des specs ci-dessous et de la documentation.
+Lisez la doc, lisez les messages d'erreur : c'est le travail réel avec Terraform.
+
 ## Où on en est, où on va
 
 AKS est le Kubernetes managé d'Azure : Azure gère le plan de contrôle, vous gérez les nœuds (des VM) et ce qui tourne dessus.
-À la fin de ce TP, vous aurez créé un cluster `aks-<prénom>`, vous y serez connecté avec `kubectl`, et vous l'aurez détruit. Demain, le code du cluster est fourni : il recréera le même.
+À la fin de ce TP, vous aurez créé un cluster `aks-<prénom>`, vous y serez connecté avec `kubectl`, et vous l'aurez détruit.
 
-## Étape 1 : se placer dans le dossier, déclarer les variables
+> **Règle du temps** : la création du cluster prend 5 à 10 minutes. Lancez votre premier `apply` **au plus tard 20 minutes** après le début du TP, quitte à compléter le reste pendant l'attente.
 
-**À lancer** :
+## Les specs
 
-```bash
-# Depuis la racine du dépôt cloné
-cd jour2/tp5
-cp ../tp1/variables.tf ../tp1/dev.tfvars .
-```
+### Variables
 
-**À écrire** à la fin de `variables.tf` : une variable `node_count`, de type `number`, avec `1` par défaut.
+| Nom | Type | Défaut |
+|---|---|---|
+| `prenom` | `string` | aucun (reprenez celle du TP1, avec sa validation) |
+| `location` | `string` | `swedencentral` |
+| `node_count` | `number` | `1` |
 
-## Étape 2 : le cluster
+Les valeurs dans `dev.tfvars` : vous pouvez repartir de `../tp1/variables.tf` et `../tp1/dev.tfvars`.
 
-**À compléter** dans un nouveau fichier `main.tf` :
+### Ressources
 
-```hcl
-resource "azurerm_resource_group" "main" {
-  name     = "rg-${var.prenom}-aks"
-  location = var.location
-}
+| Ressource | Specs |
+|---|---|
+| Resource group | Nom `rg-<prénom>-aks`, région `var.location` |
+| Cluster `azurerm_kubernetes_cluster` | Nom `aks-<prénom>`, `dns_prefix` identique, dans le resource group ci-dessus |
+| Pool de nœuds par défaut | Nom `system`, taille `Standard_D2as_v6` (la seule autorisée), nombre de nœuds `var.node_count`, **aucune zone** |
+| Identité du cluster | Identité managée attribuée par le système |
 
-resource "azurerm_kubernetes_cluster" "main" {
-  name                = "aks-${var.prenom}"
-  location            = azurerm_resource_group.main.location
-  resource_group_name = azurerm_resource_group.main.name
-  dns_prefix          = "aks-${...}"                 # À COMPLÉTER : la variable du prénom
+### Lecture du registre partagé
 
-  default_node_pool {
-    name       = "system"
-    vm_size    = "..."                               # À COMPLÉTER : la seule taille autorisée, Standard_D2as_v6
-    node_count = ...                                 # À COMPLÉTER : la variable de l'étape 1
-  }
+Un data source qui lit le registre `acrformationtf`, dans le resource group `rg-formation-partage`. Il ne crée rien.
 
-  identity {
-    type = "SystemAssigned"
-  }
+### Sorties
 
-  node_provisioning_profile {
-    mode = "Manual"
-  }
-}
-```
+| Output | Valeur |
+|---|---|
+| `get_credentials` | La commande `az aks get-credentials` complète pour **votre** cluster, construite à partir des références |
+| `kubernetes_version` | La version de Kubernetes du cluster |
+| `registry_login_server` | L'adresse du registre lu par le data source |
 
-> **Explication.**
-> - `default_node_pool` : le groupe de nœuds système. Pas d'argument `zones` : la création ne dépend pas de la capacité d'une zone précise.
-> - `identity { type = "SystemAssigned" }` : le cluster reçoit sa propre identité managée, pour créer ses disques et ses IP.
-> - `node_provisioning_profile { mode = "Manual" }` : obligatoire avec azurerm 5. `Manual` : c'est vous qui déclarez les pools de nœuds.
+## Les critères de réussite
 
-## Étape 3 : lancer la création tout de suite
-
-La création prend 5 à 10 minutes : lancez-la maintenant, vous écrirez la suite pendant l'attente.
-
-**À lancer** :
-
-```bash
-terraform init
-# Lisez le plan, puis tapez yes : la création démarre
-terraform apply -var-file=dev.tfvars
-```
-
-**Vérifier** : le plan annonce `2 to add`. Laissez ce terminal tourner et passez à l'étape 4.
-
-## Étape 4 : pendant l'attente, lire le registre et préparer les sorties
-
-**À écrire** dans un nouveau fichier `registry.tf` : un `data "azurerm_container_registry" "shared"` qui lit le registre `acrformationtf` du resource group `rg-formation-partage`.
-
-**À compléter** dans un nouveau fichier `outputs.tf` :
-
-```hcl
-output "get_credentials" {
-  value = "az aks get-credentials --resource-group ${azurerm_resource_group.main.name} --name ${azurerm_kubernetes_cluster.main.name}"
-}
-
-output "kubernetes_version" {
-  value = ...                                        # À COMPLÉTER : l'attribut kubernetes_version du cluster
-}
-
-output "registry_login_server" {
-  value = ...                                        # À COMPLÉTER : le login_server du registre lu par le data
-}
-```
-
-Une fois le premier `apply` terminé, **à lancer** :
-
-```bash
-# Ajoute la lecture du registre et les outputs : aucune ressource créée
-terraform apply -var-file=dev.tfvars
-```
-
-**Vérifier** : `0 to add`, puis les trois outputs s'affichent, dont la version de Kubernetes et `acrformationtf.azurecr.io`.
-
-## Étape 5 : se connecter au cluster
-
-**À lancer** :
-
-```bash
-# Affiche la commande qui écrit les accès du cluster dans ~/.kube/config
-terraform output -raw get_credentials
-# Copiez-collez la commande affichée, puis :
-kubectl get nodes
-kubectl get pods -A
-```
-
-**Vérifier** : `kubectl get nodes` affiche un nœud `Ready`, et `get pods -A` les pods système de Kubernetes.
-
-## Étape 6 : lire un changement sans l'appliquer
-
-**À lancer** :
-
-```bash
-# Plan avec deux nœuds au lieu d'un : on lit, on n'applique pas
-terraform plan -var-file=dev.tfvars -var="node_count=2"
-```
-
-**Vérifier** : le plan affiche `~` (modification en place) : le cluster ne serait pas recréé.
-
-## Étape 7 : retrouver le cluster dans le portail
-
-1. Ouvrez `rg-<prénom>-aks`, puis `aks-<prénom>` : la vue d'ensemble affiche la version de Kubernetes et l'état `Succeeded`.
-2. Menu **Settings > Node pools** (Paramètres > Pools de nœuds) : le pool `system`, 1 nœud, `Standard_D2as_v6`.
-3. Cherchez le resource group `MC_rg-<prénom>-aks_aks-<prénom>_swedencentral` : AKS l'a créé seul, il contient les VM des nœuds.
-
-## Étape 8 : détruire le cluster
-
-Un cluster coûte à l'heure, même sans rien faire.
-
-**À lancer** :
-
-```bash
-# Supprime le cluster et son resource group (tapez yes) : quelques minutes
-terraform destroy -var-file=dev.tfvars
-```
+1. `terraform plan` annonce `2 to add` avant le premier `apply`.
+2. Les trois outputs s'affichent, dont `acrformationtf.azurecr.io`.
+3. Après avoir lancé la commande de `get_credentials` : `kubectl get nodes` affiche **un** nœud `Ready`, et `kubectl get pods -A` les pods système.
+4. `terraform plan -var-file=dev.tfvars -var="node_count=2"` montre une modification **en place** (`~`) : lisez-la, **n'appliquez pas**.
+5. Dans le portail : retrouvez le resource group `MC_...` créé par AKS, qui contient les VM des nœuds.
+6. `terraform destroy -var-file=dev.tfvars` : le cluster coûte à l'heure, même sans rien faire.
 
 ## Documentation
 
-- [`azurerm_kubernetes_cluster`](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster)
+- [`azurerm_kubernetes_cluster`](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster) : lisez les arguments **Required** et la section `default_node_pool`
 - [Data source `azurerm_container_registry`](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/container_registry)
+- [`az aks get-credentials`](https://learn.microsoft.com/cli/azure/aks#az-aks-get-credentials)
+
+## Coups de pouce (à n'ouvrir qu'en cas de blocage)
+
+<details>
+<summary>« Insufficient node_provisioning_profile blocks »</summary>
+
+Le provider azurerm 5 exige un bloc que la plupart des exemples sur Internet n'ont pas encore. Lisez la section `node_provisioning_profile` de la documentation : la valeur `Manual` signifie « c'est moi qui déclare les pools de nœuds ».
+
+</details>
+
+<details>
+<summary>La commande de connexion au cluster</summary>
+
+`az aks get-credentials --resource-group <resource group> --name <cluster>` : remplacez les deux valeurs par des **références** Terraform dans une interpolation `"${...}"`, puis `terraform output -raw get_credentials` pour l'afficher et la copier-coller.
+
+</details>
 
 ## Questions
 
 - Dans quel resource group Azure a-t-il placé les VM des nœuds ?
 - Le passage à 2 nœuds recrée-t-il le cluster ?
+- Quel argument de la documentation vous a demandé le plus de recherche ?
 
 ## Pour aller plus loin
 

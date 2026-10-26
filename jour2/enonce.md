@@ -11,6 +11,7 @@
 | [TP4](tp4/README.md) | Premier pipeline | 30 min |
 | [TP5](tp5/README.md) | Mon cluster AKS | 50 min |
 | [Bonus](bonus/README.md) | Un pipeline sans secret (OIDC) | 30 min |
+| [Bonus 2](bonus2/README.md) | Une infrastructure en équipe | 30 min |
 
 Chaque TP est autonome et a son dossier dans le dépôt cloné : travaillez directement dedans (`cd jour2/tp1`). Le fichier `versions.tf` y est déjà. Rien ne dépend du travail d'hier.
 Vos fichiers ne sont pas suivis par git : `git pull` ne les touche pas.
@@ -75,5 +76,6 @@ Chaque énoncé est dans le dossier de son TP : cliquez pour l'ouvrir.
 | [TP4](tp4/README.md) | Premier pipeline | 30 min |
 | [TP5](tp5/README.md) | Mon cluster AKS | 50 min |
 | [Bonus](bonus/README.md) | Un pipeline sans secret (OIDC) | 30 min |
+| [Bonus 2](bonus2/README.md) | Une infrastructure en équipe | 30 min |
 
 **Avant de partir** : `terraform destroy` sur le cluster du TP5. Il coûte à l'heure, et demain le code du cluster est fourni.
