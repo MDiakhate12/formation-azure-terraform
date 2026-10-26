@@ -99,17 +99,49 @@ Le provider azurerm 5 exige un bloc que la plupart des exemples sur Internet n'o
 
 ## Pour aller plus loin
 
-Ajoutez un pool `user`, **avant** le `destroy`.
+Ajoutez un second pool de nœuds, **avant** le `destroy`.
 
-**À lancer** :
+### Le fichier fourni : `node-pool.tf.bonus`
+
+Il décrit un pool nommé `user`, déjà écrit. Son extension `.bonus` le rend **invisible** pour Terraform, qui ne lit que les fichiers `.tf` du dossier : il ne compte pas tant que vous ne le renommez pas.
+
+```hcl
+resource "azurerm_kubernetes_cluster_node_pool" "user" {
+  name                  = "user"
+  kubernetes_cluster_id = azurerm_kubernetes_cluster.main.id   # rattaché à votre cluster
+  vm_size               = "Standard_D2as_v6"
+  node_count            = 1
+}
+```
+
+> **Explication.**
+> - Un cluster AKS a toujours un pool **système** (`default_node_pool`), qui fait tourner les composants de Kubernetes : DNS, réseau, supervision.
+> - Les pools **utilisateur** accueillent vos applications. Les séparer protège le système : une application gourmande ne peut pas l'étouffer.
+> - Un pool supplémentaire est une ressource à part, `azurerm_kubernetes_cluster_node_pool`, reliée au cluster par son id : on l'ajoute ou le retire sans toucher au cluster.
+
+### À lancer
 
 ```bash
-# Le modèle fourni devient un fichier Terraform actif
+# Le modèle devient un fichier Terraform actif (PowerShell : Rename-Item node-pool.tf.bonus node-pool.tf)
 mv node-pool.tf.bonus node-pool.tf
+# Le plan annonce 1 to add : le cluster n'est pas modifié
+terraform apply -var-file=dev.tfvars
+kubectl get nodes
+```
+
+**Vérifier** : `kubectl get nodes` affiche **deux** nœuds, un par pool. Dans le portail, **Settings > Node pools** liste `system` et `user`.
+
+### Retirer le pool
+
+Il **double vos vCPU** sur un quota partagé par tout le groupe. Retirez-le dès que vous l'avez vu, sans détruire le cluster :
+
+```bash
+# Redevient invisible pour Terraform : le plan annonce 1 to destroy, le pool seulement
+mv node-pool.tf node-pool.tf.bonus
 terraform apply -var-file=dev.tfvars
 ```
 
-Il double vos vCPU : détruisez-le dès que vous l'avez vu (`terraform destroy -var-file=dev.tfvars`).
+Ou passez directement au `terraform destroy` de la fin du TP, qui supprime tout.
 
 ---
 
