@@ -1,0 +1,10 @@
+#cloud-config
+hostname: ${hostname}
+package_update: true
+packages:
+  - nginx
+write_files:
+  - path: /var/www/html/index.html
+    content: |
+      <h1>Bonjour ${prenom}</h1>
+      <p>Cette page a été écrite par cloud-init sur ${hostname}.</p>
