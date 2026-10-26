@@ -56,14 +56,37 @@ Chaque output a la forme `output "<nom>" { value = ... }`. Les valeurs viennent 
 
 | Output | Valeur | Indice |
 |---|---|---|
-| `get_credentials` | La commande `az aks get-credentials` complète pour **votre** cluster | Une chaîne avec interpolation : `"az aks get-credentials --resource-group ${...} --name ${...}"`, avec le nom du resource group et celui du cluster |
 | `kubernetes_version` | La version de Kubernetes du cluster | Un attribut du cluster qui porte ce nom : voir **Attributes Reference** de `azurerm_kubernetes_cluster` |
 | `registry_login_server` | L'adresse du registre | L'attribut `login_server` de votre data source, avec le préfixe `data.` |
+
+### Se connecter au cluster
+
+`kubectl` ne sait pas seul à quel cluster parler. La commande `az aks get-credentials` va chercher dans Azure l'adresse du cluster et ses accès, et les écrit dans `~/.kube/config`.
+Cette étape est hors Terraform : on demande seulement à Terraform d'**afficher** la commande, construite avec vos références. Sur une subscription partagée par tout le groupe, elle vise ainsi forcément **votre** cluster.
+
+**À compléter** dans `outputs.tf` :
+
+```hcl
+output "get_credentials" {
+  value = "az aks get-credentials --resource-group ${...} --name ${...}"   # À COMPLÉTER : le nom du resource group, puis celui du cluster (références)
+}
+```
+
+Une fois le cluster créé, **à lancer** :
+
+```bash
+# Affiche la commande, prête à copier-coller
+terraform output -raw get_credentials
+# Collez et lancez la commande affichée, puis :
+kubectl get nodes
+```
+
+> **Explication.** On n'écrit pas le kubeconfig avec Terraform : il contient des secrets, qui finiraient en clair dans le state. La commande affichée ne contient aucun secret : c'est `az`, avec votre session, qui va chercher les accès.
 
 ## Les critères de réussite
 
 1. `terraform plan` annonce `2 to add` avant le premier `apply`.
-2. Les trois outputs s'affichent, dont `acrformationtf.azurecr.io`.
+2. Les trois outputs s'affichent, dont `acrformationtf.azurecr.io` et la commande `az aks get-credentials` de votre cluster.
 3. Après avoir lancé la commande de `get_credentials` : `kubectl get nodes` affiche **un** nœud `Ready`, et `kubectl get pods -A` les pods système.
 4. `terraform plan -var-file=dev.tfvars -var="node_count=2"` montre une modification **en place** (`~`) : lisez-la, **n'appliquez pas**.
 5. Dans le portail : retrouvez le resource group `MC_...` créé par AKS, qui contient les VM des nœuds.
@@ -84,12 +107,6 @@ Le provider azurerm 5 exige un bloc que la plupart des exemples sur Internet n'o
 
 </details>
 
-<details>
-<summary>La commande de connexion au cluster</summary>
-
-`az aks get-credentials --resource-group <resource group> --name <cluster>` : remplacez les deux valeurs par des **références** Terraform dans une interpolation `"${...}"`, puis `terraform output -raw get_credentials` pour l'afficher et la copier-coller.
-
-</details>
 
 ## Questions
 
