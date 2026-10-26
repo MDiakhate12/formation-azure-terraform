@@ -28,7 +28,7 @@ AKS est le Kubernetes managé d'Azure : Azure gère le plan de contrôle, vous g
 Documentation : [les variables](https://developer.hashicorp.com/terraform/language/values/variables).
 
 <details>
-<summary>Syntaxe : une variable</summary>
+<summary>Syntaxe : une variable (à ouvrir en cas d’oubli ou de blocage)</summary>
 
 ```hcl
 variable "<nom>" {
@@ -57,7 +57,7 @@ variable "<nom>" {
 Documentation : [`azurerm_kubernetes_cluster`](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster). Lisez les arguments **Required**, puis les sections `default_node_pool`, `identity` et `node_provisioning_profile`.
 
 <details>
-<summary>Syntaxe : le cluster et ses blocs</summary>
+<summary>Syntaxe : le cluster et ses blocs (à ouvrir en cas d’oubli ou de blocage)</summary>
 
 ```hcl
 resource "azurerm_kubernetes_cluster" "main" {
@@ -104,7 +104,7 @@ Un data source **lit** une ressource qui existe déjà, sans jamais la créer ni
 Documentation : [data source `azurerm_container_registry`](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/container_registry). La section **Argument Reference** donne les deux arguments obligatoires, la section **Attributes Reference** ce que vous pouvez lire, dont `login_server`.
 
 <details>
-<summary>Syntaxe : un data source</summary>
+<summary>Syntaxe : un data source (à ouvrir en cas d’oubli ou de blocage)</summary>
 
 ```hcl
 data "<type>" "<nom choisi>" {
@@ -139,7 +139,7 @@ output "get_credentials" {
 > **Explication.** On n'écrit pas le kubeconfig avec Terraform : il contient des secrets, qui finiraient en clair dans le state. La commande affichée n'en contient aucun : c'est `az`, avec votre session, qui va chercher les accès.
 
 <details>
-<summary>Syntaxe : un output</summary>
+<summary>Syntaxe : un output (à ouvrir en cas d’oubli ou de blocage)</summary>
 
 ```hcl
 output "<nom>" {
