@@ -8,10 +8,8 @@
 | [Démarrage](#démarrage--relancer-le-cluster) | Relancer le cluster | `jour3/socle/` | 10 min |
 | [TP1](#tp1--brancher-terraform-sur-le-cluster) | Brancher Terraform sur le cluster | `jour3/app/` | 30 min |
 | [TP2](#tp2--mon-application-en-ligne) | Mon application en ligne | `jour3/app/` | 30 min |
-| [TP3](#tp3--exploiter-le-cluster) | Exploiter le cluster | `jour3/socle/` | 40 min |
-| [TP4](#tp4--pannes-volontaires) | Pannes volontaires | `jour3/pannes/` | 30 min |
-| [TP5](#tp5--démonstration-finale) | Démonstration finale | | 30 min |
-| [Bonus](#bonus--déployer-un-chart-helm) | Déployer un chart Helm | `jour3/bonus/` | 20 min |
+| [TP3](#tp3--exploiter-le-cluster-et-lapplication) | Exploiter le cluster et l'application | `jour3/socle/`, `jour3/app/` | 40 min |
+| [Bonus](#bonus--monter-de-version-kubernetes) | Monter de version Kubernetes | `jour3/socle/` | 35 min |
 
 Le jour 3 part de **code fourni** : rien ne dépend de vos TP d'hier.
 
@@ -19,7 +17,6 @@ Le jour 3 part de **code fourni** : rien ne dépend de vos TP d'hier.
 |---|---|
 | `jour3/socle/` | Le réseau et le cluster AKS en Kubernetes 1.35 : à lancer **dès 9h**, la création est longue |
 | `jour3/app/` | Le point de départ de l'application, avec le module `modules/microservices` déjà écrit |
-| `jour3/pannes/` | Une application préparée avec trois pannes (TP4) |
 
 Vous travaillez **directement dans ces dossiers** du dépôt cloné. Chaque TP indique le sien.
 Les solutions arrivent dans `jour3/solutions/tpN/` après chaque correction (`git pull`).
@@ -68,9 +65,9 @@ La dernière ligne doit afficher un identifiant (`xxxxxxxx-xxxx-...`).
 
 **Dossier de travail** : `jour3/socle/`
 
-Le cluster d'hier a été détruit pour ne pas payer la nuit. Le code fourni recrée un réseau et un cluster identiques, en Kubernetes 1.35 : une version en arrière, pour pratiquer la montée de version au TP3.
+Le cluster d'hier a été détruit pour ne pas payer la nuit. Le code fourni recrée un réseau et un cluster identiques, en Kubernetes 1.35 : une version en arrière, pour pratiquer la montée de version en bonus.
 
-**À compléter**, dans **chacun** des trois fichiers `socle/dev.tfvars`, `app/dev.tfvars` et `pannes/dev.tfvars` :
+**À compléter**, dans **chacun** des deux fichiers `socle/dev.tfvars` et `app/dev.tfvars` :
 
 ```hcl
 prenom = "<prénom>"   # À COMPLÉTER : votre prénom, par exemple "alexandre"
@@ -99,18 +96,15 @@ kubectl get nodes
 |---|---|---|---|
 | [TP1](#tp1--brancher-terraform-sur-le-cluster) | Brancher Terraform sur le cluster | `jour3/app/` | 30 min |
 | [TP2](#tp2--mon-application-en-ligne) | Mon application en ligne | `jour3/app/` | 30 min |
-| [TP3](#tp3--exploiter-le-cluster) | Exploiter le cluster | `jour3/socle/` | 40 min |
-| [TP4](#tp4--pannes-volontaires) | Pannes volontaires | `jour3/pannes/` | 30 min |
-| [TP5](#tp5--démonstration-finale) | Démonstration finale | | 30 min |
-| [Bonus](#bonus--déployer-un-chart-helm) | Déployer un chart Helm | `jour3/bonus/` | 20 min |
+| [TP3](#tp3--exploiter-le-cluster-et-lapplication) | Exploiter le cluster et l'application | `jour3/socle/`, `jour3/app/` | 40 min |
+| [Bonus](#bonus--monter-de-version-kubernetes) | Monter de version Kubernetes | `jour3/socle/` | 35 min |
 
 ## Avant de partir
 
 Détruisez dans l'ordre inverse de la création. **À lancer**, depuis `jour3/` :
 
 ```bash
-# D'abord l'application des pannes et l'application, puis le cluster
-cd pannes && terraform destroy -var-file=dev.tfvars && cd ..
+# D'abord l'application, puis le cluster
 cd app && terraform destroy -var-file=dev.tfvars && cd ..
 cd socle && terraform destroy -var-file=dev.tfvars && cd ..
 # Il ne doit plus rien rester à votre nom
@@ -369,7 +363,7 @@ kubectl get pods -n app
 
 ### Pour aller plus loin
 
-**1. Un nom DNS.** **À compléter** dans l'appel du module : ajoutez `dns_label_enabled = true`.
+**À compléter** dans l'appel du module : ajoutez `dns_label_enabled = true`.
 
 **À écrire** dans `outputs.tf`, à la racine de `app/` : un output `app_dns_url` qui affiche `module.microservices.dns_url`. Puis `apply`.
 
@@ -377,46 +371,22 @@ kubectl get pods -n app
 
 > **Explication.** L'output `dns_url` du module vaut `null` tant que `dns_label_enabled` est à `false` : Terraform n'affiche pas un output nul.
 
-**2. Une nouvelle version de l'application.** **À modifier** dans l'appel du module : `tag = "v2"`.
-
-**À lancer**, dans deux terminaux :
-
-```bash
-# Terminal 1 : regardez les pods changer pendant l'apply (Ctrl+C pour arrêter)
-kubectl get pods -n app -w
-```
-
-```bash
-# Terminal 2
-terraform apply -var-file=dev.tfvars
-```
-
-**Vérifier** :
-1. Le plan annonce `3 to change` : seule l'image des trois déploiements change.
-2. Dans le terminal 1, les nouveaux pods du frontend et du service A démarrent **avant** que les anciens s'arrêtent. Celui du service B s'arrête d'abord, puis repart.
-3. Actualisez la page pendant l'`apply` : elle répond tout du long, et le bandeau passe au **vert** avec la pastille `v2`. Le compteur de visites a survécu.
-
-> **Explication.**
-> - Kubernetes remplace les pods progressivement (*rolling update*) : l'application reste disponible pendant la mise à jour.
-> - Le service B fait exception : son disque ne se monte que sur un nœud à la fois, l'ancien pod s'arrête donc avant que le nouveau démarre (`strategy { type = "Recreate" }` dans `modules/microservices/service-b.tf`). Quelques secondes de coupure, pour lui seul.
-> - Revenir en arrière, c'est remettre `tag = "v1"` et relancer `apply`.
-
 </details>
 
-## TP3 : exploiter le cluster
+## TP3 : exploiter le cluster et l'application
 
 <details>
 <summary><b>Afficher l'énoncé du TP3</b></summary>
 
-**Objectif** : modifier le cluster en place : labels, autoscaler, puis montée de version. **Durée** : 40 minutes.
-**Dossier de travail** : `jour3/socle/`
+**Objectif** : faire évoluer le cluster et l'application sans les recréer : labels, autoscaler, puis une nouvelle version de l'application. **Durée** : 40 minutes.
+**Dossier de travail** : `jour3/socle/`, puis `jour3/app/`
 
 ### Où on en est, où on va
 
 Votre application tourne sur un cluster en 1.35, à un seul nœud fixe.
-À la fin de ce TP, le cluster aura des tags et des labels, un autoscaler de 1 à 2 nœuds, et il sera passé en 1.36, sans couper l'application. **Lisez chaque plan avant de répondre `yes`.**
+À la fin de ce TP, le cluster aura des tags et des labels et un autoscaler de 1 à 2 nœuds, et votre application sera passée en **v2**, sans coupure. **Lisez chaque plan avant de répondre `yes`.**
 
-Toutes les modifications se font dans `jour3/socle/aks.tf`, dans le bloc `default_node_pool`, sauf la version.
+Les étapes 1 et 2 se font dans `jour3/socle/aks.tf`, dans le bloc `default_node_pool`. L'étape 3 se fait dans `jour3/app/`.
 
 ### Étape 1 : tags Azure et labels Kubernetes
 
@@ -463,9 +433,69 @@ terraform plan -var-file=dev.tfvars
 terraform apply -var-file=dev.tfvars
 ```
 
-### Étape 3 : la montée de version
+### Étape 3 : une nouvelle version de l'application
 
-La montée de version prend **15 à 25 minutes** : lancez-la tôt. Azure ajoute un nœud neuf, y déplace les pods, puis retire l'ancien.
+Les images existent en deux versions, `v1` et `v2`. Passer de l'une à l'autre se fait dans le code, comme le reste.
+
+**À modifier** dans `jour3/app/main.tf`, dans l'appel du module : `tag = "v2"`.
+
+**À lancer**, dans deux terminaux :
+
+```bash
+# Terminal 1 : regardez les pods changer pendant l'apply (Ctrl+C pour arrêter)
+kubectl get pods -n app -w
+```
+
+```bash
+# Terminal 2
+cd ../app
+terraform apply -var-file=dev.tfvars
+```
+
+**Vérifier** :
+1. Le plan annonce `3 to change` : seule l'image des trois déploiements change.
+2. Dans le terminal 1, les nouveaux pods du frontend et du service A démarrent **avant** que les anciens s'arrêtent. Celui du service B s'arrête d'abord, puis repart.
+3. Actualisez la page pendant l'`apply` : elle répond tout du long, et le bandeau passe au **vert** avec la pastille `v2`. Le compteur de visites a survécu.
+
+> **Explication.**
+> - Kubernetes remplace les pods progressivement (*rolling update*) : l'application reste disponible pendant la mise à jour.
+> - Le service B fait exception : son disque ne se monte que sur un nœud à la fois, l'ancien pod s'arrête donc avant que le nouveau démarre (`strategy { type = "Recreate" }` dans `modules/microservices/service-b.tf`). Quelques secondes de coupure, pour lui seul.
+> - Revenir en arrière, c'est remettre `tag = "v1"` et relancer `apply`.
+
+### Étape 4 : vérifier dans le portail
+
+1. `aks-<prénom>`, menu **Settings > Node pools** (Paramètres > Pools de nœuds) : le pool `system`, autoscaler de 1 à 2, avec le label `role=system`.
+2. Le resource group `MC_rg-<prénom>-j3_aks-<prénom>_swedencentral`, le groupe de machines virtuelles des nœuds (`aks-system-...`), menu **Tags** (Étiquettes) : `owner`. Les tags du pool s'appliquent aux nœuds.
+3. `aks-<prénom>`, menu **Kubernetes resources > Workloads** (Charges de travail) : l'image du déploiement `frontend` se termine par `:v2`.
+
+### Documentation
+
+- [`azurerm_kubernetes_cluster`, bloc `default_node_pool`](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster)
+- [`kubernetes_deployment_v1`, bloc `strategy`](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/deployment_v1)
+
+### Questions
+
+- Les tags et les labels : le plan annonçait-il `~` ou `-/+` ?
+- Pourquoi la page répond-elle pendant le passage en v2, et pas le service B ?
+
+</details>
+
+## Bonus : monter de version Kubernetes
+
+<details>
+<summary><b>Afficher l'énoncé du bonus</b></summary>
+
+**Objectif** : passer le cluster de Kubernetes 1.35 à 1.36, sans couper l'application. **Durée** : 35 minutes, dont 15 à 25 minutes d'attente.
+**Dossier de travail** : `jour3/socle/`
+
+### Où on en est, où on va
+
+Votre cluster tourne en 1.35, une version mineure en retard : c'est voulu.
+À la fin de ce bonus, le cluster et ses nœuds seront en 1.36, et Azure appliquera seul les correctifs suivants.
+
+### Étape 1 : préparer la montée de version
+
+La montée de version prend **15 à 25 minutes**. Azure ajoute un nœud neuf, y déplace les pods, puis retire l'ancien.
 
 **À compléter** dans `aks.tf`, juste sous `kubernetes_version` :
 
@@ -490,15 +520,18 @@ La montée de version prend **15 à 25 minutes** : lancez-la tôt. Azure ajoute 
 > - `max_surge` : combien de nœuds neufs AKS peut ajouter en même temps, en pourcentage du pool, **arrondi au supérieur**. Avec un nœud, 10 % donne un nœud de plus : 2 vCPU de quota pendant quelques minutes. Sur un pool de 10 nœuds, ce serait aussi un nœud à la fois.
 > - `automatic_upgrade_channel = "patch"` : après la montée, Azure applique seul les correctifs de la 1.36 (1.36.1, 1.36.2…). Terraform ne voit pas de différence, puisque le code dit `"1.36"`.
 
-**À lancer**, puis **sans attendre**, l'étape 4 dans un second terminal :
+### Étape 2 : lancer la montée de version
+
+**À lancer**, puis **sans attendre**, l'étape 3 dans un second terminal :
 
 ```bash
+cd ../socle
 terraform plan -var-file=dev.tfvars
 # 15 à 25 minutes
 terraform apply -var-file=dev.tfvars
 ```
 
-### Étape 4 : observer pendant la mise à jour
+### Étape 3 : observer pendant la mise à jour
 
 **À lancer**, dans un second terminal :
 
@@ -511,15 +544,12 @@ Pendant ce temps, actualisez l'URL de votre application.
 
 **Vérifier** : un nœud en 1.36 apparaît, l'ancien passe en `SchedulingDisabled`, puis disparaît. L'application reste accessible, à quelques secondes près : quand l'ancien nœud est vidé, ses pods mettent un instant à redémarrer sur le neuf. À la fin, `terraform output kubernetes_version` affiche `1.36.x`.
 
-### Étape 5 : vérifier dans le portail
+### Étape 4 : vérifier dans le portail
 
-1. `aks-<prénom>`, menu **Settings > Cluster configuration** (Paramètres > Configuration du cluster) : la version 1.36 et le canal de mise à niveau `patch`.
-2. Menu **Settings > Node pools** (Paramètres > Pools de nœuds) : le pool `system`, autoscaler de 1 à 2, avec le label `role=system`.
-3. Le resource group `MC_rg-<prénom>-j3_aks-<prénom>_swedencentral`, le groupe de machines virtuelles des nœuds (`aks-system-...`), menu **Tags** (Étiquettes) : `owner`. Les tags du pool s'appliquent aux nœuds.
+`aks-<prénom>`, menu **Settings > Cluster configuration** (Paramètres > Configuration du cluster) : la version 1.36 et le canal de mise à niveau `patch`.
 
 ### Documentation
 
-- [`azurerm_kubernetes_cluster`, bloc `default_node_pool`](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster)
 - [Mettre à niveau un cluster AKS](https://learn.microsoft.com/azure/aks/upgrade-aks-cluster)
 
 ### Questions
@@ -527,314 +557,5 @@ Pendant ce temps, actualisez l'URL de votre application.
 - Pourquoi un nœud supplémentaire apparaît-il pendant la mise à jour ?
 - Que fait `automatic_upgrade_channel = "patch"` ?
 
-### Pour aller plus loin
-
-Ajoutez un pool `apps` et placez-y l'application.
-
-**À lancer**, dans `jour3/socle/` :
-
-```bash
-# Le modèle fourni devient un fichier Terraform actif : un pool de nœuds avec le label role = apps
-mv node-pool.tf.bonus node-pool.tf
-terraform apply -var-file=dev.tfvars
-```
-
-Puis, dans `jour3/app/main.tf`, ajoutez `node_selector = { role = "apps" }` à l'appel du module, et `apply` dans `app/`.
-Sur quel nœud vont les pods (`kubectl get pods -n app -o wide`) ? Détruisez le pool ensuite : il double vos vCPU.
-
 </details>
 
-## TP4 : pannes volontaires
-
-<details>
-<summary><b>Afficher l'énoncé du TP4</b></summary>
-
-**Objectif** : diagnostiquer et corriger trois pannes dans une application préparée. **Durée** : 30 minutes.
-**Dossier de travail** : `jour3/pannes/`
-
-### Où on en est, où on va
-
-Le dossier `pannes` déploie une petite application dans le namespace `pannes`, avec **trois pannes cachées**.
-À la fin de ce TP, vous les aurez trouvées et corrigées, avec les commandes de diagnostic de Kubernetes et de Terraform. Le code n'est pas commenté : à vous de chercher.
-
-### Étape 1 : déployer l'application en panne
-
-Le state de ce dossier est dans un stockage partagé de la formation : chacun y a son propre fichier, sa **clé**.
-
-**À lancer** :
-
-```bash
-cd ../pannes
-# Configure le backend partagé, avec un fichier de state à votre nom
-terraform init -backend-config="key=<prénom>.tfstate"
-terraform apply -var-file=dev.tfvars
-# Regardez l'état des pods
-kubectl get pods -n pannes
-```
-
-> **Explication.** `-backend-config` complète le bloc `backend` de `versions.tf` au moment de l'`init`. C'est la façon de passer une valeur qui change d'une personne à l'autre, puisqu'un backend n'accepte pas de variables.
-
-### Étape 2 : panne 1, un pod qui ne démarre pas
-
-**Vérifier** : un pod est en `ImagePullBackOff` ou `ErrImagePull`.
-
-**À lancer** :
-
-```bash
-# Détaille le pod : lisez la section Events, tout en bas
-kubectl describe pod -n pannes <nom-du-pod>
-```
-
-**À faire** : trouvez la cause dans les Events, corrigez `main.tf`, puis `terraform apply -var-file=dev.tfvars`.
-
-**Vérifier** : `kubectl get pods -n pannes` montre le pod `Running`.
-
-### Étape 3 : panne 2, un Service qui ne mène nulle part
-
-**À lancer** :
-
-```bash
-# Les endpoints d'un Service : les adresses des pods vers lesquels il envoie le trafic
-kubectl get endpoints -n pannes service-a
-# Les pods et leurs labels
-kubectl get pods -n pannes --show-labels
-```
-
-**Vérifier** : le Service `service-a` n'a **aucun** endpoint, alors que ses pods tournent.
-
-**À faire** : comparez le `selector` du Service dans `main.tf` et les labels des pods. Corrigez, puis `apply`.
-
-**Vérifier** : `kubectl get endpoints -n pannes service-a` affiche deux adresses.
-
-### Étape 4 : panne 3, un state verrouillé
-
-**À lancer** :
-
-```bash
-# Interrompt brutalement un apply en cours : le verrou reste posé
-./casser-verrou.sh
-# Le plan suivant ne peut pas prendre le verrou
-terraform plan -var-file=dev.tfvars
-```
-
-Sous Windows sans Git Bash : lancez `terraform apply -var-file=dev.tfvars`, puis fermez brutalement la fenêtre du terminal pendant qu'il attend.
-
-**Vérifier** : `Error acquiring the state lock`, avec un **ID** de verrou.
-
-**À faire** : levez le verrou avec la commande prévue par Terraform, en lui donnant cet ID, puis relancez le `plan`.
-
-> **Explication.** `terraform force-unlock <ID>` lève un verrou. À n'utiliser **que** si vous êtes sûr que plus personne n'est en train de travailler sur ce state.
-
-### Étape 5 : les journaux détaillés de Terraform
-
-**À lancer** :
-
-```bash
-# Active les journaux détaillés, écrits dans un fichier
-export TF_LOG=DEBUG
-export TF_LOG_PATH=terraform.log
-terraform plan -var-file=dev.tfvars
-# Désactive les journaux
-unset TF_LOG TF_LOG_PATH
-```
-
-Sous PowerShell : `$env:TF_LOG = "DEBUG"; $env:TF_LOG_PATH = "terraform.log"`, puis `Remove-Item Env:TF_LOG, Env:TF_LOG_PATH`.
-
-**À faire** : ouvrez `terraform.log` et repérez un appel à l'API Kubernetes (une ligne avec `GET` ou `https://`).
-
-### Documentation
-
-- [Déboguer des pods](https://kubernetes.io/docs/tasks/debug/debug-application/debug-pods/)
-- [`terraform force-unlock`](https://developer.hashicorp.com/terraform/cli/commands/force-unlock)
-- [Les journaux de Terraform](https://developer.hashicorp.com/terraform/internals/debugging)
-
-### Questions
-
-- Pour chaque panne : quelle commande vous a donné la cause ?
-- Quand `force-unlock` est-il dangereux ?
-
-### Pour aller plus loin
-
-Supprimez un objet derrière le dos de Terraform, puis demandez-lui ce qui a changé.
-
-**À lancer** :
-
-```bash
-# Supprime le Service frontend directement dans le cluster
-kubectl delete svc -n pannes frontend
-# Compare le state à la réalité, sans rien modifier
-terraform plan -var-file=dev.tfvars -refresh-only
-```
-
-Que propose Terraform ? Puis `terraform apply -var-file=dev.tfvars` le recrée.
-
-</details>
-
-## TP5 : démonstration finale
-
-<details>
-<summary><b>Afficher l'énoncé du TP5</b></summary>
-
-**Objectif** : présenter votre application et votre infrastructure en deux minutes. **Durée** : 30 minutes.
-**Dossier de travail** : `jour3/socle/` et `jour3/app/`
-
-### Étape 1 : vérifier que tout tourne
-
-**À lancer** :
-
-```bash
-# Dans jour3/app/ : l'adresse de l'application
-terraform output app_url
-# Dans jour3/socle/ : la version du cluster, après la montée de version
-terraform output kubernetes_version
-```
-
-**Vérifier** : l'URL répond, et la version est `1.36.x`.
-
-### Étape 2 : préparer deux minutes
-
-1. L'architecture : le socle (réseau, cluster), le module `microservices`, le registre partagé.
-2. Un `terraform plan` en direct, et ce qu'il annonce.
-3. L'URL de l'application, ouverte devant tout le monde.
-
-### Étape 3 : présenter
-
-Passez à tour de rôle, en partageant votre écran. Posez une question à un autre participant.
-
-### Étape 4 : et en production ?
-
-Notez ce que vous changeriez : nombre de nœuds et zones, state distant, pipeline, identités, Gateway API...
-
-Pour aller plus loin : montrez le nom DNS fourni par Azure plutôt que l'IP (TP2, « Pour aller plus loin »).
-
-</details>
-
-## Bonus : déployer un chart Helm
-
-<details>
-<summary><b>Afficher l'énoncé du bonus</b></summary>
-
-**Objectif** : installer une application packagée par Helm, avec Terraform. **Durée** : 20 minutes.
-**Dossier de travail** : `jour3/bonus/`
-
-### Où on en est, où on va
-
-Au TP2, vous avez décrit chaque objet Kubernetes un par un. **Helm** est le gestionnaire de paquets de Kubernetes : un « chart » installe tout un ensemble d'objets d'un coup.
-Vous allez installer `podinfo`, une petite application de démonstration, avec le provider `helm` de Terraform.
-
-### Étape 1 : le provider helm
-
-**À lancer** :
-
-```bash
-cd ../bonus
-```
-
-**À copier** dans un nouveau fichier `versions.tf` :
-
-```hcl
-terraform {
-  required_version = ">= 1.15.0"
-
-  required_providers {
-    helm = {
-      source  = "hashicorp/helm"
-      version = "~> 3.0"
-    }
-  }
-}
-
-provider "helm" {
-  kubernetes = {
-    config_path    = "~/.kube/config"
-    config_context = coalesce(var.kube_context, "aks-${var.prenom}")
-  }
-}
-```
-
-> **Explication.** Avec le provider helm 3, la connexion au cluster est un **attribut** (`kubernetes = { ... }`, avec un `=`), plus un bloc : une différence avec la version 2 qu'on trouve encore dans beaucoup d'exemples.
-
-### Étape 2 : les variables
-
-**À lancer** :
-
-```bash
-# Reprend les variables et les valeurs de l'application
-cp ../app/variables.tf ../app/dev.tfvars .
-```
-
-**À copier** à la fin de `variables.tf` :
-
-```hcl
-variable "chart_version" {
-  type        = string
-  description = "Version du chart podinfo (helm search repo podinfo --versions)"
-  default     = "6.15.0"
-}
-```
-
-### Étape 3 : le chart
-
-**À compléter** dans un nouveau fichier `main.tf` :
-
-```hcl
-resource "helm_release" "podinfo" {
-  name             = "podinfo"
-  repository       = "https://stefanprodan.github.io/podinfo"
-  chart            = "..."                  # À COMPLÉTER : podinfo
-  version          = var.chart_version
-  namespace        = "..."                  # À COMPLÉTER : bonus
-  create_namespace = true
-
-  set = [
-    { name = "replicaCount", value = "..." },                                         # À COMPLÉTER : 2
-    { name = "ui.message", value = "Déployé par ${var.prenom} avec Helm et Terraform" },
-  ]
-}
-```
-
-> **Explication.**
-> - `repository` et `chart` : où trouver le paquet, et lequel. `version` le fige : le même code installe toujours la même version.
-> - `set` : des valeurs qui remplacent celles du chart, comme le nombre de réplicas.
-
-**À copier** dans un nouveau fichier `outputs.tf` :
-
-```hcl
-output "status" {
-  value = helm_release.podinfo.status
-}
-
-output "acces" {
-  value = "kubectl port-forward -n bonus svc/podinfo 9898:9898, puis http://localhost:9898"
-}
-```
-
-### Étape 4 : installer et ouvrir
-
-**À lancer** :
-
-```bash
-terraform init
-terraform apply -var-file=dev.tfvars
-# Tous les objets créés par le chart
-kubectl get all -n bonus
-# Ouvre un tunnel vers l'application (Ctrl+C pour arrêter)
-kubectl port-forward -n bonus svc/podinfo 9898:9898
-```
-
-**Vérifier** : l'output `status` vaut `deployed`, et `http://localhost:9898` affiche votre message.
-
-### Documentation
-
-- [`helm_release`](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release)
-
-### Questions
-
-- Combien d'objets Kubernetes le chart a-t-il créés ? Combien Terraform en voit-il dans son state ?
-- Quand préférer Helm aux ressources `kubernetes_*` ?
-
-### Pour finir
-
-**À lancer** : `terraform destroy -var-file=dev.tfvars`.
-
-</details>

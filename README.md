@@ -10,7 +10,7 @@ Supports de cours : <https://mdiakhate12.github.io/formation-azure-terraform/>
 |---|---|---|
 | J1 | Introduction, HCL, réseau, modules | Resource group, VNet, sous-réseaux, NSG, puis un module réseau |
 | J2 | Terraform en profondeur, AKS | State distant, import et moved, identités, pipeline GitHub Actions, cluster AKS |
-| J3 | Exploiter AKS, troubleshooting | Application sur AKS, Service LoadBalancer, volume, autoscaler, montée de version, pannes |
+| J3 | Exploiter AKS, troubleshooting | Application sur AKS, Service LoadBalancer, volume, autoscaler, nouvelle version de l'application, montée de version Kubernetes (bonus) |
 
 ## Organisation
 
@@ -23,5 +23,5 @@ Chaque jour est autonome : le code du jour N+1 ne dépend pas de votre travail d
 | `jour1/` | Le dossier de travail du jour 1, du TP1 au TP5 |
 | `jour2/tpX/` | Les dossiers de travail du jour 2, un par TP, avec `versions.tf` |
 | `jourN/corrige.md` | Les réponses aux questions, publiées en fin de journée |
-| `jour3/socle`, `jour3/app`, `jour3/pannes` | Le code fourni du jour 3 |
+| `jour3/socle`, `jour3/app` | Le code fourni du jour 3 |
 | `docs/` | Les supports de cours publiés |
