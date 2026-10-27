@@ -484,8 +484,10 @@ La montée de version prend **15 à 25 minutes** : lancez-la tôt. Azure ajoute 
 **À faire** : dans `variables.tf`, passez la valeur par défaut de `kubernetes_version` de `"1.35"` à `"1.36"`.
 
 > **Explication.**
-> - `automatic_upgrade_channel = "patch"` : Azure appliquera ensuite tout seul les correctifs (1.36.x).
-> - `max_surge` : combien de nœuds supplémentaires pendant la mise à jour. Avec un nœud, 10 % arrondi donne un nœud de plus : 2 vCPU de quota pendant la montée.
+> - Passer à `"1.36"` met d'abord à jour le **plan de contrôle** (l'API Kubernetes, gérée par Azure), puis **remplace** les nœuds : un nœud ne se met pas à jour sur place.
+> - Pour chaque nœud, AKS **ajoute** un nœud neuf en 1.36, **vide** l'ancien (ses pods sont recréés sur le neuf), puis le **supprime**.
+> - `max_surge` : combien de nœuds neufs AKS peut ajouter en même temps, en pourcentage du pool, **arrondi au supérieur**. Avec un nœud, 10 % donne un nœud de plus : 2 vCPU de quota pendant quelques minutes. Sur un pool de 10 nœuds, ce serait aussi un nœud à la fois.
+> - `automatic_upgrade_channel = "patch"` : après la montée, Azure applique seul les correctifs de la 1.36 (1.36.1, 1.36.2…). Terraform ne voit pas de différence, puisque le code dit `"1.36"`.
 
 **À lancer**, puis **sans attendre**, l'étape 4 dans un second terminal :
 
@@ -506,7 +508,7 @@ kubectl get nodes -w
 
 Pendant ce temps, actualisez l'URL de votre application.
 
-**Vérifier** : un nœud supplémentaire apparaît, puis l'ancien disparaît. L'application reste accessible. À la fin, `terraform output kubernetes_version` affiche `1.36.x`.
+**Vérifier** : un nœud en 1.36 apparaît, l'ancien passe en `SchedulingDisabled`, puis disparaît. L'application reste accessible, à quelques secondes près : quand l'ancien nœud est vidé, ses pods mettent un instant à redémarrer sur le neuf. À la fin, `terraform output kubernetes_version` affiche `1.36.x`.
 
 ### Étape 5 : vérifier dans le portail
 
