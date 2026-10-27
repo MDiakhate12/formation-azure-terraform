@@ -242,7 +242,12 @@ Le namespace `app` existe. Les images de l'application (un frontend, un service 
 
 ### Étape 1 : lire le registre partagé
 
-**À écrire** dans un nouveau fichier `main.tf` : un `data "azurerm_container_registry" "acr"` qui lit le registre `acrformationtf` du resource group `rg-formation-partage`.
+**À écrire** dans un nouveau fichier `main.tf`, deux data sources, dans cet ordre :
+
+1. `data "azurerm_resource_group" "shared"` : lit le resource group `rg-formation-partage`.
+2. `data "azurerm_container_registry" "acr"` : lit le registre `acrformationtf`, dans ce resource group, **par référence** au data source précédent.
+
+> **Explication.** La même chaîne de références que pour des ressources : le resource group, puis le registre, puis le module de l'étape 2. Terraform lit chaque data source après ceux dont il dépend, et le nom du resource group n'est écrit qu'une fois.
 
 ### Étape 2 : appeler le module
 
