@@ -369,8 +369,13 @@ kubectl get pods -n app
 
 ### Pour aller plus loin
 
-**1. Un nom DNS.** **À compléter** dans l'appel du module : ajoutez `dns_label_enabled = true`, puis `apply`.
-Ouvrez ensuite `http://tf-<prénom>.swedencentral.cloudapp.azure.com` : un nom fourni par Azure, sans aucune configuration DNS.
+**1. Un nom DNS.** **À compléter** dans l'appel du module : ajoutez `dns_label_enabled = true`.
+
+**À écrire** dans `outputs.tf`, à la racine de `app/` : un output `app_dns_url` qui affiche `module.microservices.dns_url`. Puis `apply`.
+
+**Vérifier** : l'output `app_dns_url` affiche `http://tf-<prénom>.swedencentral.cloudapp.azure.com`. Ouvrez-la : un nom fourni par Azure, sans aucune configuration DNS. Le nom peut mettre une à deux minutes à répondre.
+
+> **Explication.** L'output `dns_url` du module vaut `null` tant que `dns_label_enabled` est à `false` : Terraform n'affiche pas un output nul.
 
 **2. Une nouvelle version de l'application.** **À modifier** dans l'appel du module : `tag = "v2"`.
 

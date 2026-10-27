@@ -31,6 +31,12 @@ variable "dns_label_enabled" {
   default     = false
 }
 
+variable "location" {
+  type        = string
+  description = "Région du cluster : elle fait partie du nom DNS fourni par Azure"
+  default     = "swedencentral"
+}
+
 variable "node_selector" {
   type        = map(string)
   description = "Labels des nœuds sur lesquels placer les pods, par exemple { role = \"apps\" }"
