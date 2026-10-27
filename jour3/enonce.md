@@ -5,17 +5,16 @@
 | Partie | Sujet | Dossier | Durée |
 |---|---|---|---|
 | [Prérequis](#lire-les-énoncés) | Lire les énoncés, se connecter à Azure |  | 5 min |
-| [Démarrage](#démarrage--relancer-le-cluster) | Relancer le cluster | `jour3/socle/` | 10 min |
-| [TP1](#tp1--brancher-terraform-sur-le-cluster) | Brancher Terraform sur le cluster | `jour3/app/` | 30 min |
+| [TP1](#tp1--écrire-le-socle-et-brancher-terraform-sur-le-cluster) | Écrire le socle et brancher Terraform sur le cluster | `jour3/socle/`, `jour3/app/` | 50 min |
 | [TP2](#tp2--mon-application-en-ligne) | Mon application en ligne | `jour3/app/` | 30 min |
-| [TP3](#tp3--exploiter-le-cluster-et-lapplication) | Exploiter le cluster et l'application | `jour3/socle/`, `jour3/app/` | 40 min |
+| [TP3](#tp3--exploiter-le-cluster-et-lapplication) | Exploiter le cluster et l'application | `jour3/socle/`, `jour3/app/` | 45 min |
 | [Bonus](#bonus--monter-de-version-kubernetes) | Monter de version Kubernetes | `jour3/socle/` | 35 min |
 
-Le jour 3 part de **code fourni** : rien ne dépend de vos TP d'hier.
+Le jour 3 ne dépend pas de vos TP d'hier : le socle s'écrit à partir de specs, le reste du code est fourni.
 
 | Dossier | Contenu |
 |---|---|
-| `jour3/socle/` | Le réseau et le cluster AKS en Kubernetes 1.35 : à lancer **dès 9h**, la création est longue |
+| `jour3/socle/` | Le socle à écrire au TP1 : réseau, identité et cluster AKS en Kubernetes 1.35. Les variables et les outputs sont fournis |
 | `jour3/app/` | Le point de départ de l'application, avec le module `modules/microservices` déjà écrit |
 
 Vous travaillez **directement dans ces dossiers** du dépôt cloné. Chaque TP indique le sien.
@@ -61,42 +60,13 @@ La dernière ligne doit afficher un identifiant (`xxxxxxxx-xxxx-...`).
 > Nouvel onglet, nouvelle fenêtre, terminal de VS Code : relancez la ligne `export` (ou `$env:...`). `az login` n'est pas à refaire.
 > Si vous l'oubliez, `terraform plan` échoue avec : `subscription_id is a required provider property`.
 
-## Démarrage : relancer le cluster
-
-**Dossier de travail** : `jour3/socle/`
-
-Le cluster d'hier a été détruit pour ne pas payer la nuit. Le code fourni recrée un réseau et un cluster identiques, en Kubernetes 1.35 : une version en arrière, pour pratiquer la montée de version en bonus.
-
-**À compléter**, dans **chacun** des deux fichiers `socle/dev.tfvars` et `app/dev.tfvars` :
-
-```hcl
-prenom = "<prénom>"   # À COMPLÉTER : votre prénom, par exemple "alexandre"
-```
-
-**À lancer**, depuis la racine du dépôt cloné :
-
-```bash
-cd jour3/socle
-terraform init
-# Crée le réseau et le cluster : 5 à 10 minutes (tapez yes)
-terraform apply -var-file=dev.tfvars
-# Affiche la commande qui écrit les accès du cluster dans ~/.kube/config
-terraform output -raw get_credentials
-# Copiez-collez la commande affichée, puis vérifiez le nœud :
-kubectl get nodes
-```
-
-**Vérifier** : `kubectl get nodes` affiche un nœud `Ready`. Pendant la création, le formateur fait le rappel de la veille.
-
-> **Explication.** Le socle contient un VNet, un sous-réseau `snet-aks`, une identité managée pour le cluster (avec le rôle `Network Contributor` sur ce sous-réseau) et le cluster `aks-<prénom>`. Lisez `aks.tf` pendant l'attente : vous le modifierez au TP3.
-
 ## Cliquer pour naviguer vers un TP
 
 | TP | Sujet | Dossier | Durée |
 |---|---|---|---|
-| [TP1](#tp1--brancher-terraform-sur-le-cluster) | Brancher Terraform sur le cluster | `jour3/app/` | 30 min |
+| [TP1](#tp1--écrire-le-socle-et-brancher-terraform-sur-le-cluster) | Écrire le socle et brancher Terraform sur le cluster | `jour3/socle/`, `jour3/app/` | 50 min |
 | [TP2](#tp2--mon-application-en-ligne) | Mon application en ligne | `jour3/app/` | 30 min |
-| [TP3](#tp3--exploiter-le-cluster-et-lapplication) | Exploiter le cluster et l'application | `jour3/socle/`, `jour3/app/` | 40 min |
+| [TP3](#tp3--exploiter-le-cluster-et-lapplication) | Exploiter le cluster et l'application | `jour3/socle/`, `jour3/app/` | 45 min |
 | [Bonus](#bonus--monter-de-version-kubernetes) | Monter de version Kubernetes | `jour3/socle/` | 35 min |
 
 ## Avant de partir
@@ -111,48 +81,158 @@ cd socle && terraform destroy -var-file=dev.tfvars && cd ..
 az group list --query "[?starts_with(name, 'rg-<prénom>')].name" -o table
 ```
 
-## TP1 : brancher Terraform sur le cluster
+## TP1 : écrire le socle et brancher Terraform sur le cluster
 
 <details>
 <summary><b>Afficher l'énoncé du TP1</b></summary>
 
-**Objectif** : configurer le provider `kubernetes` et créer un premier objet dans le cluster. **Durée** : 30 minutes.
-**Dossier de travail** : `jour3/app/`
+**Objectif** : écrire le réseau, l'identité et le cluster AKS, puis configurer le provider `kubernetes` et créer un premier objet dans le cluster. **Durée** : 50 minutes.
+**Dossier de travail** : `jour3/socle/`, puis `jour3/app/`
 
 ### Où on en est, où on va
 
-Votre cluster tourne. Jusqu'ici, Terraform ne parlait qu'à Azure : il ne sait pas créer d'objets **dans** Kubernetes.
-À la fin de ce TP, Terraform parlera aussi à l'API du cluster, et vous y aurez créé un premier objet : le namespace `app`, qui accueillera l'application au TP2.
+Le cluster d'hier a été détruit pour ne pas payer la nuit. Vous écrivez le **socle** : un réseau, une identité et un cluster, en Kubernetes 1.35, une version en arrière pour pratiquer la montée de version en bonus. Le réseau et l'identité, vous les avez déjà écrits : ici, seules les specs sont données.
+Ensuite, Terraform parlera aussi à l'API du cluster, et vous y créerez un premier objet : le namespace `app`, qui accueillera l'application au TP2.
 
-### Étape 1 : vérifier la connexion au cluster
+> **Règle du temps** : la création du cluster prend 5 à 10 minutes. Lancez l'`apply` de l'**étape 5** au plus tard 25 minutes après le début du TP. Vous écrirez les étapes 6 et 7 pendant l'attente.
 
-**À lancer** :
+### Étape 1 : votre prénom
 
-```bash
-# Le nœud doit être Ready
-kubectl get nodes
-# Le contexte courant doit être celui de VOTRE cluster
-kubectl config current-context
+**À compléter**, dans **chacun** des deux fichiers `socle/dev.tfvars` et `app/dev.tfvars` :
+
+```hcl
+prenom = "<prénom>"   # À COMPLÉTER : votre prénom, par exemple "alexandre"
 ```
 
-**Vérifier** : le contexte affiché est `aks-<prénom>`. Sinon, relancez la commande `get_credentials` du démarrage.
+> **Explication.** Le dossier `socle/` contient déjà `versions.tf`, `variables.tf` (`prenom`, `location`, `kubernetes_version`) et `outputs.tf`. Les outputs utilisent les noms `main` du resource group et du cluster : gardez exactement les noms du code donnés ci-dessous.
 
-> **Explication.** Un **contexte** kubectl désigne un cluster et un utilisateur. Plusieurs clusters dans `~/.kube/config` : se tromper de contexte, c'est déployer sur le cluster de quelqu'un d'autre.
+### Étape 2 : le réseau
 
-### Étape 2 : découvrir le dossier fourni
+**Fichier** : `network.tf`, dans `jour3/socle/`.
 
-**À lancer** :
+| Ressource | Nom dans le code | Specs |
+|---|---|---|
+| `azurerm_resource_group` | `main` | Nom `rg-<prénom>-j3`, région `var.location` |
+| `azurerm_virtual_network` | `main` | Nom `vnet-<prénom>-j3`, espace d'adresses `10.42.0.0/16`, dans le resource group ci-dessus |
+| `azurerm_subnet` | `aks` | Nom `snet-aks`, plage `10.42.1.0/24`, dans le VNet ci-dessus |
 
-```bash
-cd ../app
-ls
+> **Explication.** Le sous-réseau n'accueille que les **nœuds** : les pods prennent leurs adresses dans un réseau à part, propre au cluster (le mode *overlay*, à l'étape 4). Un `/24` suffit donc largement.
+
+<details>
+<summary>Syntaxe : le réseau du jour 1 (à ouvrir en cas d’oubli ou de blocage)</summary>
+
+```hcl
+resource "azurerm_virtual_network" "<nom>" {
+  name                = "<nom du VNet>"
+  location            = <référence à la région du resource group>
+  resource_group_name = <référence au nom du resource group>
+  address_space       = ["<plage CIDR>"]
+}
+
+resource "azurerm_subnet" "<nom>" {
+  name                 = "<nom du sous-réseau>"
+  resource_group_name  = <référence au nom du resource group>
+  virtual_network_name = <référence au nom du VNet>
+  address_prefixes     = ["<plage CIDR>"]
+}
 ```
 
-> **Explication.** Le dossier contient déjà `versions.tf` (providers `azurerm` et `kubernetes`), `variables.tf` (`prenom` et `kube_context`), `dev.tfvars`, et le module `modules/microservices` que vous appellerez au TP2.
+</details>
 
-### Étape 3 : le provider kubernetes
+### Étape 3 : l'identité du cluster
 
-**À compléter** dans un nouveau fichier `providers.tf` :
+**Fichier** : `identity.tf`, dans `jour3/socle/`.
+
+| Ressource | Nom dans le code | Specs |
+|---|---|---|
+| `azurerm_user_assigned_identity` | `aks` | Nom `id-<prénom>-aks`, dans le resource group de l'étape 2 |
+| `azurerm_role_assignment` | `aks_subnet` | Rôle `Network Contributor`, sur le **sous-réseau** `snet-aks`, donné à l'identité ci-dessus |
+
+> **Explication.** Le cluster va brancher ses nœuds et son load balancer sur **votre** sous-réseau : son identité doit en avoir le droit **avant** sa création. Une identité attribuée par l'utilisateur existe avant le cluster : on lui donne son rôle d'abord. C'est le même trio qu'au TP3 d'hier : qui (l'identité), quoi (le rôle), où (le scope).
+
+<details>
+<summary>Syntaxe : une identité et son rôle, comme au TP3 du jour 2 (à ouvrir en cas d’oubli ou de blocage)</summary>
+
+```hcl
+resource "azurerm_user_assigned_identity" "<nom>" {
+  name                = "<nom de l'identité>"
+  location            = <référence à la région du resource group>
+  resource_group_name = <référence au nom du resource group>
+}
+
+resource "azurerm_role_assignment" "<nom>" {
+  scope                = <référence à l'id de la ressource visée>
+  role_definition_name = "<nom du rôle>"
+  principal_id         = <référence au principal_id de l'identité>
+}
+```
+
+</details>
+
+### Étape 4 : le cluster
+
+**À compléter** dans un nouveau fichier `aks.tf`, dans `jour3/socle/` :
+
+```hcl
+resource "azurerm_kubernetes_cluster" "main" {
+  name                = "aks-${var.prenom}"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  dns_prefix          = "aks-${var.prenom}"
+  kubernetes_version  = var.kubernetes_version
+
+  # Un seul nœud, sans zone : la création ne dépend pas de la capacité d'une zone précise.
+  default_node_pool {
+    name                        = "system"
+    vm_size                     = "..."                  # À COMPLÉTER : Standard_D2as_v6
+    node_count                  = 1
+    orchestrator_version        = var.kubernetes_version # les nœuds suivent la version du cluster
+    vnet_subnet_id              = ...                    # À COMPLÉTER : l'id du sous-réseau de l'étape 2
+    temporary_name_for_rotation = "systemtmp"
+  }
+
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [...]                                 # À COMPLÉTER : l'id de l'identité de l'étape 3
+  }
+
+  network_profile {
+    network_plugin      = "azure"
+    network_plugin_mode = "overlay"
+  }
+
+  node_provisioning_profile {
+    mode = "Manual"
+  }
+
+  depends_on = [...]                                     # À COMPLÉTER : l'attribution de rôle de l'étape 3
+}
+```
+
+> **Explication.**
+> - `vnet_subnet_id` : les nœuds se branchent sur **votre** sous-réseau, au lieu d'un VNet créé par AKS comme au TP5 d'hier.
+> - `identity` en `UserAssigned` : le cluster utilise l'identité de l'étape 3, déjà munie de son rôle.
+> - `depends_on` : rien dans le cluster ne référence l'attribution de rôle. Sans cette ligne, Terraform pourrait créer le cluster avant que le rôle existe.
+> - `network_plugin_mode = "overlay"` : les pods ont leurs adresses dans un réseau propre au cluster, pas dans le VNet.
+> - `node_provisioning_profile` : `Manual`, c'est nous qui décrivons les pools de nœuds. Obligatoire avec azurerm 5.
+
+### Étape 5 : créer le socle
+
+**À lancer**, depuis la racine du dépôt cloné :
+
+```bash
+cd jour3/socle
+terraform init
+terraform validate
+# Lisez le plan (6 to add), tapez yes : la création démarre, 5 à 10 minutes
+terraform apply -var-file=dev.tfvars
+```
+
+**Laissez ce terminal tourner** et passez à l'étape 6 dans un second terminal.
+
+### Étape 6 : pendant l'attente, le provider kubernetes
+
+**À compléter** dans un nouveau fichier `providers.tf`, dans `jour3/app/` :
 
 ```hcl
 provider "kubernetes" {
@@ -162,14 +242,15 @@ provider "kubernetes" {
 ```
 
 > **Explication.**
+> - Le dossier `app/` contient déjà `versions.tf` (providers `azurerm` et `kubernetes`), `variables.tf` (`prenom` et `kube_context`), `dev.tfvars`, et le module `modules/microservices` que vous appellerez au TP2.
 > - `config_path` : le fichier écrit par `az aks get-credentials`. Le provider s'y connecte comme `kubectl`.
 > - `coalesce(a, b)` renvoie la première valeur non vide : `kube_context` si vous l'avez donné, sinon `aks-<prénom>`.
 
-### Étape 4 : le namespace
+### Étape 7 : pendant l'attente, le namespace
 
 Un **namespace** est un espace de noms dans le cluster : il range les objets d'une même application.
 
-**À compléter** dans un nouveau fichier `namespace.tf` :
+**À compléter** dans un nouveau fichier `namespace.tf`, dans `jour3/app/` :
 
 ```hcl
 resource "kubernetes_namespace_v1" "app" {
@@ -182,11 +263,29 @@ resource "kubernetes_namespace_v1" "app" {
 
 > **Explication.** Les ressources du provider kubernetes 3 finissent par `_v1` : c'est la version de l'API Kubernetes qu'elles utilisent.
 
-### Étape 5 : créer le namespace
+### Étape 8 : se connecter au cluster
+
+**À lancer**, dans `jour3/socle/`, quand l'`apply` de l'étape 5 est **terminé** :
+
+```bash
+# Affiche la commande qui écrit les accès du cluster dans ~/.kube/config
+terraform output -raw get_credentials
+# Copiez-collez la commande affichée, puis :
+kubectl get nodes
+# Le contexte courant doit être celui de VOTRE cluster
+kubectl config current-context
+```
+
+**Vérifier** : un nœud `Ready`, et le contexte `aks-<prénom>`.
+
+> **Explication.** Un **contexte** kubectl désigne un cluster et un utilisateur. Plusieurs clusters dans `~/.kube/config` : se tromper de contexte, c'est déployer sur le cluster de quelqu'un d'autre.
+
+### Étape 9 : créer le namespace
 
 **À lancer** :
 
 ```bash
+cd ../app
 terraform init
 terraform plan -var-file=dev.tfvars
 terraform apply -var-file=dev.tfvars
@@ -196,28 +295,31 @@ kubectl get ns
 
 **Vérifier** : le plan annonce `1 to add`, et `kubectl get ns` montre `app`.
 
-### Étape 6 : lire le module fourni
+### Étape 10 : lire le module fourni
 
 **À faire** : ouvrez `modules/microservices/variables.tf`. Quelles variables le module attend-il ? Lesquelles ont une valeur par défaut ? Vous l'appellerez au TP2.
 
-### Étape 7 : retrouver le namespace dans le portail
+### Étape 11 : retrouver le socle et le namespace dans le portail
 
-1. Ouvrez votre cluster `aks-<prénom>`, menu **Kubernetes resources > Namespaces** (Ressources Kubernetes > Espaces de noms).
-2. `app` y figure, avec le label `owner`.
+1. Ouvrez `rg-<prénom>-j3` : le VNet, l'identité `id-<prénom>-aks` et le cluster `aks-<prénom>`.
+2. Sur le sous-réseau `snet-aks`, menu **Access control (IAM)** (Contrôle d'accès) : l'identité a le rôle `Network Contributor`.
+3. Ouvrez le cluster, menu **Kubernetes resources > Namespaces** (Ressources Kubernetes > Espaces de noms) : `app` y figure, avec le label `owner`.
 
 ### Documentation
 
+- [`azurerm_kubernetes_cluster`](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster)
 - [Le provider kubernetes](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs)
 - [`kubernetes_namespace_v1`](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/namespace_v1)
 
 ### Questions
 
+- Pourquoi l'identité du cluster est-elle créée avant lui, et pas avec lui comme au TP5 d'hier ?
 - Que se passe-t-il si `config_context` désigne le cluster d'un autre participant ?
 - Pourquoi déclarer le provider à la racine et pas dans le module ?
 
 ### Pour aller plus loin
 
-**À lancer** : `terraform state list`. Quelles ressources Terraform connaît-il dans le cluster ?
+**À lancer** : `terraform state list`, dans `socle/` puis dans `app/`. Quelles ressources chaque configuration connaît-elle ?
 
 </details>
 
@@ -378,7 +480,7 @@ kubectl get pods -n app
 <details>
 <summary><b>Afficher l'énoncé du TP3</b></summary>
 
-**Objectif** : faire évoluer le cluster et l'application sans les recréer : labels, autoscaler, puis une nouvelle version de l'application. **Durée** : 40 minutes.
+**Objectif** : faire évoluer le cluster et l'application sans les recréer : labels, autoscaler, puis une nouvelle version de l'application. **Durée** : 45 minutes.
 **Dossier de travail** : `jour3/socle/`, puis `jour3/app/`
 
 ### Où on en est, où on va

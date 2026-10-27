@@ -15,6 +15,6 @@ variable "location" {
 
 variable "kubernetes_version" {
   type        = string
-  description = "Une mineure avant la dernière, pour pratiquer la montée de version au TP3"
+  description = "Une mineure avant la dernière, pour pratiquer la montée de version en bonus"
   default     = "1.35"
 }
