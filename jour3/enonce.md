@@ -369,8 +369,32 @@ kubectl get pods -n app
 
 ### Pour aller plus loin
 
-**À compléter** dans l'appel du module : ajoutez `dns_label_enabled = true`, puis `apply`.
+**1. Un nom DNS.** **À compléter** dans l'appel du module : ajoutez `dns_label_enabled = true`, puis `apply`.
 Ouvrez ensuite `http://tf-<prénom>.swedencentral.cloudapp.azure.com` : un nom fourni par Azure, sans aucune configuration DNS.
+
+**2. Une nouvelle version de l'application.** **À modifier** dans l'appel du module : `tag = "v2"`.
+
+**À lancer**, dans deux terminaux :
+
+```bash
+# Terminal 1 : regardez les pods changer pendant l'apply (Ctrl+C pour arrêter)
+kubectl get pods -n app -w
+```
+
+```bash
+# Terminal 2
+terraform apply -var-file=dev.tfvars
+```
+
+**Vérifier** :
+1. Le plan annonce `3 to change` : seule l'image des trois déploiements change.
+2. Dans le terminal 1, les nouveaux pods du frontend et du service A démarrent **avant** que les anciens s'arrêtent. Celui du service B s'arrête d'abord, puis repart.
+3. Actualisez la page pendant l'`apply` : elle répond tout du long, et le bandeau passe au **vert** avec la pastille `v2`. Le compteur de visites a survécu.
+
+> **Explication.**
+> - Kubernetes remplace les pods progressivement (*rolling update*) : l'application reste disponible pendant la mise à jour.
+> - Le service B fait exception : son disque ne se monte que sur un nœud à la fois, l'ancien pod s'arrête donc avant que le nouveau démarre (`strategy { type = "Recreate" }` dans `modules/app/service-b.tf`). Quelques secondes de coupure, pour lui seul.
+> - Revenir en arrière, c'est remettre `tag = "v1"` et relancer `apply`.
 
 </details>
 
