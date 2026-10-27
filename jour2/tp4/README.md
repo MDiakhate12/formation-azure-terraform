@@ -37,10 +37,10 @@ Un **workflow** GitHub Actions est un fichier YAML dans `.github/workflows/` : i
 mkdir -p .github/workflows
 ```
 
-**À compléter** dans un nouveau fichier `.github/workflows/terraform.yml` :
+**À compléter** dans un nouveau fichier `.github/workflows/terraform-validate.yml` :
 
 ```yaml
-name: terraform
+name: terraform-validate
 
 on:
   pull_request:
@@ -118,7 +118,7 @@ git push
 
 Ajoutez un job `plan`, qui se connecte à Azure avec un service principal.
 
-1. **À copier** : le contenu de `jour2/tp4/plan-job.yml` (dépôt de la formation), à la fin de votre `terraform.yml`, sous `jobs:`.
+1. **À copier** : le contenu de `jour2/tp4/plan-job.yml` (dépôt de la formation), à la fin de votre `terraform-validate.yml`, sous `jobs:`.
 2. **À faire** : dans votre dépôt GitHub, **Settings > Secrets and variables > Actions**, créez les quatre secrets `ARM_CLIENT_ID`, `ARM_CLIENT_SECRET`, `ARM_TENANT_ID` et `ARM_SUBSCRIPTION_ID`. Le formateur vous les donne.
 
 ---

@@ -1,4 +1,4 @@
-# Pour aller plus loin : à ajouter sous "jobs:" dans .github/workflows/terraform.yml.
+# Pour aller plus loin : à ajouter sous "jobs:" dans .github/workflows/terraform-validate.yml.
 # Secrets du dépôt (Settings, Secrets and variables, Actions) fournis par le formateur :
 # ARM_CLIENT_ID, ARM_CLIENT_SECRET, ARM_TENANT_ID, ARM_SUBSCRIPTION_ID.
   plan:
