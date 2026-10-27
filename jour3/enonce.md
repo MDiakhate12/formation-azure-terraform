@@ -485,6 +485,7 @@ La montée de version prend **15 à 25 minutes** : lancez-la tôt. Azure ajoute 
 
 > **Explication.**
 > - Passer à `"1.36"` met d'abord à jour le **plan de contrôle** (l'API Kubernetes, gérée par Azure), puis **remplace** les nœuds : un nœud ne se met pas à jour sur place.
+> - Les nœuds suivent grâce à `orchestrator_version = var.kubernetes_version`, déjà dans `default_node_pool`. Sans cette ligne, Terraform ne monterait que le plan de contrôle, et les nœuds resteraient en 1.35.
 > - Pour chaque nœud, AKS **ajoute** un nœud neuf en 1.36, **vide** l'ancien (ses pods sont recréés sur le neuf), puis le **supprime**.
 > - `max_surge` : combien de nœuds neufs AKS peut ajouter en même temps, en pourcentage du pool, **arrondi au supérieur**. Avec un nœud, 10 % donne un nœud de plus : 2 vCPU de quota pendant quelques minutes. Sur un pool de 10 nœuds, ce serait aussi un nœud à la fois.
 > - `automatic_upgrade_channel = "patch"` : après la montée, Azure applique seul les correctifs de la 1.36 (1.36.1, 1.36.2…). Terraform ne voit pas de différence, puisque le code dit `"1.36"`.

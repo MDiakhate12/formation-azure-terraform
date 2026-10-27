@@ -23,6 +23,7 @@ resource "azurerm_kubernetes_cluster" "main" {
     name                        = "system"
     vm_size                     = "Standard_D2as_v6"
     node_count                  = 1
+    orchestrator_version        = var.kubernetes_version # les nœuds suivent la version du cluster
     vnet_subnet_id              = azurerm_subnet.aks.id
     temporary_name_for_rotation = "systemtmp"
   }
