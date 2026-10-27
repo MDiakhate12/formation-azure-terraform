@@ -5,8 +5,8 @@
 | Partie | Sujet | Durée |
 |---|---|---|
 | [Prérequis](#lire-les-énoncés) | Lire les énoncés, se connecter à Azure | 5 min |
-| [TP1](tp1/README.md) | Un state distant | 30 min |
-| [TP2](tp2/README.md) | Importer et déplacer | 30 min |
+| [TP1](tp1/README.md) | Un state distant | 15 min |
+| [TP2](tp2/README.md) | Importer et déplacer | 15 min |
 | [TP3](tp3/README.md) | Une identité managée avec un rôle | 40 min |
 | [TP4](tp4/README.md) | Premier pipeline | 30 min |
 | [TP5](tp5/README.md) | Mon cluster AKS | 50 min |
@@ -70,8 +70,8 @@ Chaque énoncé est dans le dossier de son TP : cliquez pour l'ouvrir.
 
 | TP | Sujet | Durée |
 |---|---|---|
-| [TP1](tp1/README.md) | Un state distant | 30 min |
-| [TP2](tp2/README.md) | Importer et déplacer | 30 min |
+| [TP1](tp1/README.md) | Un state distant | 15 min |
+| [TP2](tp2/README.md) | Importer et déplacer | 15 min |
 | [TP3](tp3/README.md) | Une identité managée avec un rôle | 40 min |
 | [TP4](tp4/README.md) | Premier pipeline | 30 min |
 | [TP5](tp5/README.md) | Mon cluster AKS | 50 min |

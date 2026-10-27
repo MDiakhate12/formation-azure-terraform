@@ -2,7 +2,7 @@
 
 [Sommaire du jour 2](../enonce.md) · [Se connecter à Azure](../enonce.md#avant-de-commencer)
 
-**Objectif** : faire adopter par Terraform une ressource créée à la main, puis la renommer dans le code sans la recréer. **Durée** : 30 minutes.
+**Objectif** : faire adopter par Terraform une ressource créée à la main, puis la renommer dans le code sans la recréer. **Durée** : 15 minutes.
 **Dossier de travail** : `jour2/tp2/` (le fichier `versions.tf` y est déjà)
 
 ## Où on en est, où on va

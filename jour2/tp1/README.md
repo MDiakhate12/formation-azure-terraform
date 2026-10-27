@@ -2,7 +2,7 @@
 
 [Sommaire du jour 2](../enonce.md) · [Se connecter à Azure](../enonce.md#avant-de-commencer)
 
-**Objectif** : créer avec Terraform le stockage du state, puis y déplacer le state. **Durée** : 30 minutes.
+**Objectif** : créer avec Terraform le stockage du state, puis y déplacer le state. **Durée** : 15 minutes.
 **Dossier de travail** : `jour2/tp1/` (le fichier `versions.tf` y est déjà)
 
 ## Où on en est, où on va
