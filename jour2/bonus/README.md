@@ -16,6 +16,8 @@ Azure n'accepte que les jetons d'un dépôt précis, reconnu par son **subject**
 
 **À faire** : ouvrez `https://api.github.com/repos/<votre-compte>/tp-pipeline` dans le navigateur. Notez le premier `"id"` (le dépôt) et celui de la partie `"owner"` (vous).
 
+`<votre-compte>` est votre nom d'utilisateur GitHub, celui du dépôt `tp-pipeline` du TP4 : le morceau entre `github.com/` et `/tp-pipeline` dans son adresse. Pour le retrouver : `git -C ../../../tp-pipeline remote get-url origin` (le dépôt du TP4 est à côté de celui de la formation).
+
 **À lancer** :
 
 ```bash
