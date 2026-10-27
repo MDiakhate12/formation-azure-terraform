@@ -46,6 +46,19 @@ on:
   pull_request:
   push:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      prenom:
+        description: Votre prénom, en minuscules et sans accent (préfixe du resource group)
+        required: true
+        type: string
+      location:
+        description: La région des ressources
+        required: true
+        type: choice
+        options:
+          - swedencentral
+        default: swedencentral
 
 jobs:
   validate:
@@ -61,7 +74,8 @@ jobs:
 ```
 
 > **Explication.**
-> - `on` : quand le workflow se déclenche. Ici, à chaque pull request et à chaque push sur `main`.
+> - `on` : quand le workflow se déclenche. Ici, à chaque pull request, à chaque push sur `main`, et à la demande (`workflow_dispatch`).
+> - `workflow_dispatch` ajoute un bouton **Run workflow** dans l'onglet **Actions**, avec un formulaire : ses `inputs` (`prenom`, `location`) servent au job `plan` du « Pour aller plus loin ».
 > - `runs-on: ubuntu-latest` : une machine Linux fournie par GitHub, effacée à la fin.
 > - `actions/checkout` récupère votre code ; `hashicorp/setup-terraform` installe Terraform.
 > - `fmt -check` **échoue** si le code n'est pas formaté, sans rien modifier. `init -backend=false` télécharge les providers sans toucher à aucun state.
@@ -82,7 +96,7 @@ git push -u origin ajout-pipeline
 
 **À faire** sur GitHub : la page du dépôt propose **Compare & pull request** : ouvrez la pull request.
 
-**Vérifier** : onglet **Actions**, le workflow `terraform` tourne, puis passe au vert.
+**Vérifier** : onglet **Actions**, le workflow `terraform-validate` tourne, puis passe au vert.
 
 ## Étape 4 : casser le format, voir le pipeline échouer
 
@@ -103,6 +117,14 @@ terraform fmt
 git commit -am "Format corrigé"
 git push
 ```
+
+## Étape 5 : lancer le pipeline à la demande
+
+**À faire** sur GitHub, une fois la pull request fusionnée dans `main` (bouton **Merge pull request**) : onglet **Actions**, workflow `terraform-validate`, bouton **Run workflow**. Saisissez votre prénom, gardez `swedencentral`, puis **Run workflow**.
+
+**Vérifier** : une nouvelle exécution apparaît, déclenchée par `workflow_dispatch`, et passe au vert.
+
+> **Explication.** GitHub n'affiche le bouton **Run workflow** que pour un workflow présent sur la branche par défaut : d'où la fusion d'abord.
 
 ## Documentation
 

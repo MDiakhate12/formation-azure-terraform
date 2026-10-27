@@ -15,4 +15,8 @@
         with:
           terraform_version: "~1.16"
       - run: terraform init
-      - run: terraform plan -var="prenom=prenom" -input=false
+      # Lancé à la main, le formulaire fournit prenom et location ; sur une pull request, valeurs par défaut
+      - run: >-
+          terraform plan -input=false
+          -var="prenom=${{ inputs.prenom || 'prenom' }}"
+          -var="location=${{ inputs.location || 'swedencentral' }}"
