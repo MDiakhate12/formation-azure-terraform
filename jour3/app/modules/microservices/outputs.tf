@@ -8,10 +8,3 @@ output "dns_url" {
 }
 
 # TP2 : ajoutez ici l'output url (adresse du Service LoadBalancer du frontend).
-locals {
-  lb = kubernetes_service_v1.frontend.status[0]
-}
-
-output "url" {
-  value = "http://${local.lb.load_balancer[0].ingress[0].ip}"
-}
