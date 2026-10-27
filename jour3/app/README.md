@@ -1,6 +1,6 @@
 # Application du jour 3
 
-Point de départ des TP1 et TP2. Le module `modules/app` est fourni : lisez-le avant de l'appeler.
+Point de départ des TP1 et TP2. Le module `modules/microservices` est fourni : lisez-le avant de l'appeler.
 
 | Fichier du module | Contenu |
 |---|---|

@@ -18,7 +18,7 @@ Le jour 3 part de **code fourni** : rien ne dépend de vos TP d'hier.
 | Dossier | Contenu |
 |---|---|
 | `jour3/socle/` | Le réseau et le cluster AKS en Kubernetes 1.35 : à lancer **dès 9h**, la création est longue |
-| `jour3/app/` | Le point de départ de l'application, avec le module `modules/app` déjà écrit |
+| `jour3/app/` | Le point de départ de l'application, avec le module `modules/microservices` déjà écrit |
 | `jour3/pannes/` | Une application préparée avec trois pannes (TP4) |
 
 Vous travaillez **directement dans ces dossiers** du dépôt cloné. Chaque TP indique le sien.
@@ -154,7 +154,7 @@ cd ../app
 ls
 ```
 
-> **Explication.** Le dossier contient déjà `versions.tf` (providers `azurerm` et `kubernetes`), `variables.tf` (`prenom` et `kube_context`), `dev.tfvars`, et le module `modules/app` que vous appellerez au TP2.
+> **Explication.** Le dossier contient déjà `versions.tf` (providers `azurerm` et `kubernetes`), `variables.tf` (`prenom` et `kube_context`), `dev.tfvars`, et le module `modules/microservices` que vous appellerez au TP2.
 
 ### Étape 3 : le provider kubernetes
 
@@ -204,7 +204,7 @@ kubectl get ns
 
 ### Étape 6 : lire le module fourni
 
-**À faire** : ouvrez `modules/app/variables.tf`. Quelles variables le module attend-il ? Lesquelles ont une valeur par défaut ? Vous l'appellerez au TP2.
+**À faire** : ouvrez `modules/microservices/variables.tf`. Quelles variables le module attend-il ? Lesquelles ont une valeur par défaut ? Vous l'appellerez au TP2.
 
 ### Étape 7 : retrouver le namespace dans le portail
 
@@ -251,13 +251,13 @@ Le namespace `app` existe. Les images de l'application (un frontend, un service 
 
 ### Étape 2 : appeler le module
 
-Le module `modules/app` contient les trois déploiements, le disque et les services internes. Vous l'appelez avec quelques valeurs.
+Le module `modules/microservices` contient les trois déploiements, le disque et les services internes. Vous l'appelez avec quelques valeurs.
 
 **À compléter** à la suite, dans `main.tf` :
 
 ```hcl
-module "app" {
-  source    = "./modules/app"
+module "microservices" {
+  source    = "./modules/microservices"
   namespace = kubernetes_namespace_v1.app.metadata[0].name
   prenom    = var.prenom
   registry  = ...              # À COMPLÉTER : l'attribut login_server du registre de l'étape 1
@@ -274,7 +274,7 @@ module "app" {
 
 Un Service de type `LoadBalancer` demande à Azure une IP publique, et dirige le trafic vers les pods du frontend. C'est le seul composant exposé.
 
-**À compléter** dans un nouveau fichier `modules/app/frontend-service.tf` (dans le **module**) :
+**À compléter** dans un nouveau fichier `modules/microservices/frontend-service.tf` (dans le **module**) :
 
 ```hcl
 resource "kubernetes_service_v1" "frontend" {
@@ -307,7 +307,7 @@ resource "kubernetes_service_v1" "frontend" {
 
 L'IP est attribuée par Azure **après** la création : elle se lit dans le statut du Service.
 
-**À copier** à la fin de `modules/app/outputs.tf` :
+**À copier** à la fin de `modules/microservices/outputs.tf` :
 
 ```hcl
 locals {
@@ -321,7 +321,7 @@ output "url" {
 
 > **Explication.** `status[0].load_balancer[0].ingress[0].ip` descend dans le statut du Service : le premier point d'entrée du load balancer, puis son adresse IP.
 
-**À écrire** dans un nouveau fichier `outputs.tf` (à la racine de `app/`) : un output `app_url` qui affiche `module.app.url`.
+**À écrire** dans un nouveau fichier `outputs.tf` (à la racine de `app/`) : un output `app_url` qui affiche `module.microservices.url`.
 
 ### Étape 5 : déployer
 
@@ -393,7 +393,7 @@ terraform apply -var-file=dev.tfvars
 
 > **Explication.**
 > - Kubernetes remplace les pods progressivement (*rolling update*) : l'application reste disponible pendant la mise à jour.
-> - Le service B fait exception : son disque ne se monte que sur un nœud à la fois, l'ancien pod s'arrête donc avant que le nouveau démarre (`strategy { type = "Recreate" }` dans `modules/app/service-b.tf`). Quelques secondes de coupure, pour lui seul.
+> - Le service B fait exception : son disque ne se monte que sur un nœud à la fois, l'ancien pod s'arrête donc avant que le nouveau démarre (`strategy { type = "Recreate" }` dans `modules/microservices/service-b.tf`). Quelques secondes de coupure, pour lui seul.
 > - Revenir en arrière, c'est remettre `tag = "v1"` et relancer `apply`.
 
 </details>
@@ -685,7 +685,7 @@ terraform output kubernetes_version
 
 ### Étape 2 : préparer deux minutes
 
-1. L'architecture : le socle (réseau, cluster), le module `app`, le registre partagé.
+1. L'architecture : le socle (réseau, cluster), le module `microservices`, le registre partagé.
 2. Un `terraform plan` en direct, et ce qu'il annonce.
 3. L'URL de l'application, ouverte devant tout le monde.
 
