@@ -55,4 +55,5 @@ Quelques conseils :
 - essayez d'abord une expression dans `terraform console`, puis recopiez-la dans `exercice.tf` ;
 - dans la console, `type(...)` donne le type d'une valeur et `local.equipe` affiche les données ;
 - `-auto-approve` est sans risque ici : aucune ressource n'existe, seul le state local des outputs est écrit ;
+- les solutions sont dans `solutions/`, un dossier par thème : à ouvrir une fois l'exercice tenté. Pour vérifier une solution, copiez ses fichiers dans le dossier du thème (par-dessus `exercice.tf` et les modèles), puis relancez l'apply ;
 - la documentation de chaque fonction : <https://developer.hashicorp.com/terraform/language/functions>.
