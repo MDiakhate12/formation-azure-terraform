@@ -1,0 +1,23 @@
+{
+  "dev": {
+    "region": "swedencentral",
+    "espace_adresses": "10.10.0.0/16",
+    "noeuds": 1,
+    "taille_vm": "Standard_D2as_v6",
+    "facteur_replicas": 1
+  },
+  "recette": {
+    "region": "swedencentral",
+    "espace_adresses": "10.20.0.0/16",
+    "noeuds": 1,
+    "taille_vm": "Standard_D2as_v6",
+    "facteur_replicas": 1
+  },
+  "prod": {
+    "region": "swedencentral",
+    "espace_adresses": "10.30.0.0/16",
+    "noeuds": 3,
+    "taille_vm": "Standard_D4as_v6",
+    "facteur_replicas": 2
+  }
+}

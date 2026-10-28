@@ -1,0 +1,12 @@
+#!/bin/sh
+# Généré par Terraform : écrit les fichiers de la plateforme dans sortie/.
+set -e
+mkdir -p sortie
+%{ for env, contenu in tfvars ~}
+cat > sortie/${env}.tfvars <<'FIN'
+${contenu}FIN
+%{ endfor ~}
+cat > sortie/rapport.md <<'FIN'
+${rapport}FIN
+echo "Fichiers écrits dans sortie/ :"
+ls sortie

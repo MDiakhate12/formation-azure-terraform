@@ -4,6 +4,8 @@ Classe virtuelle du 26 au 28 octobre 2026, 9h-17h. Supports et code des TP.
 
 **Avant le premier jour : préparez votre poste avec [PREREQUIS.md](PREREQUIS.md).**
 
+**Après la formation : entraînez-vous sur les fonctions Terraform, en local et sans compte Azure, avec [fonctions/](fonctions/).**
+
 Supports de cours : <https://mdiakhate12.github.io/formation-azure-terraform/>
 
 | Jour | Chapitres | Fil rouge |
@@ -24,4 +26,5 @@ Chaque jour est autonome : le code du jour N+1 ne dépend pas de votre travail d
 | `jour2/tpX/` | Les dossiers de travail du jour 2, un par TP, avec `versions.tf` |
 | `jourN/corrige.md` | Les réponses aux questions, publiées en fin de journée |
 | `jour3/socle`, `jour3/app` | Le code fourni du jour 3 |
+| `fonctions/` | Aide-mémoire et exercices sur les fonctions Terraform, à faire en local |
 | `docs/` | Les supports de cours publiés |

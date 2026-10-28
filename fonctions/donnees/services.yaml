@@ -1,0 +1,26 @@
+services:
+  frontend:
+    port: 80
+    replicas: 2
+    exposition: publique
+    equipe: dev
+    tags: [web, nginx]
+  commandes:
+    port: 8080
+    replicas: 3
+    exposition: interne
+    equipe: dev
+    tags: [api, python]
+  stock:
+    port: 8081
+    replicas: 1
+    exposition: interne
+    equipe: dev
+    tags: [api, python, base-de-donnees]
+  factures:
+    port: 9090
+    replicas: 1
+    exposition: interne
+    equipe: ops
+    tags: [batch]
+    planification: "0 2 * * *"

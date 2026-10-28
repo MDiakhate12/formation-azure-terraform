@@ -45,3 +45,7 @@ jour2/tp*/*.tfvars
 jour2/tp*/.terraform.lock.hcl
 jour2/bonus/*.tf
 !jour2/bonus/versions.tf
+
+# Exercices sur les fonctions : fichiers produits par l'exercice final
+fonctions/11-final/sortie/
+fonctions/11-final/exporter.sh

@@ -1,0 +1,6 @@
+prenom,nom,role,ville,arrivee,actif
+alain,Martin,admin,Paris,2023-03-15,true
+Bérénice,DURAND,dev,Lyon,2024-09-02,true
+chloé,Petit,dev,Nantes,2025-01-20,true
+David,moreau,ops,Paris,2022-11-07,false
+Émile,Laurent,ops,Lille,2026-06-01,true
