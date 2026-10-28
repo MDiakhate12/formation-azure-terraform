@@ -1,0 +1,24 @@
+# Plateforme Nébuleuse
+
+Rapport du ${date}.
+
+## Équipe
+
+| Personne | Rôle | Ville | Arrivée |
+|---|---|---|---|
+%{ for id, u in utilisateurs ~}
+%{ if u.actif ~}
+| ${u.nom_complet} | ${u.role} | ${u.ville} | ${u.arrivee} |
+%{ endif ~}
+%{ endfor ~}
+
+## Déploiements
+%{ for env, e in environnements }
+### ${env} : ${e.espace_adresses}, ${e.noeuds} nœud(s) ${e.taille_vm}
+
+%{ for cle, d in deploiements ~}
+%{ if d.env == env ~}
+- ${d.service} : ${d.replicas} réplica(s)%{ if d.url != null }, ${d.url}%{ endif }
+%{ endif ~}
+%{ endfor ~}
+%{ endfor ~}
