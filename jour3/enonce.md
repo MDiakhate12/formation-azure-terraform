@@ -486,7 +486,7 @@ kubectl get pods -n app
 ### Où on en est, où on va
 
 Votre application tourne sur un cluster en 1.35, à un seul nœud fixe.
-À la fin de ce TP, le cluster aura des tags et des labels et un autoscaler de 1 à 2 nœuds, et votre application sera passée en **v2**, sans coupure. **Lisez chaque plan avant de répondre `yes`.**
+À la fin de ce TP, le cluster aura des tags et des labels et un autoscaler de 1 à 2 nœuds, et votre application sera passée en **v2**, sans que la page cesse de répondre. **Lisez chaque plan avant de répondre `yes`.**
 
 Les étapes 1 et 2 se font dans `jour3/socle/aks.tf`, dans le bloc `default_node_pool`. L'étape 3 se fait dans `jour3/app/`.
 
