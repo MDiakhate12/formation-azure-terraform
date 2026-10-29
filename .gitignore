@@ -49,3 +49,6 @@ jour2/bonus/*.tf
 # Exercices sur les fonctions : fichiers produits par l'exercice final
 fonctions/11-final/sortie/
 fonctions/11-final/exporter.sh
+
+# Journaux de debug (TF_LOG_PATH) : ils contiennent des identifiants Azure
+*.log
